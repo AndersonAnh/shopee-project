@@ -1,0 +1,10 @@
+{
+  "dashboard": {
+    "id": null,
+    "title": "Spring Boot Application Metrics",
+    "tags": ["spring-boot", "prometheus"],
+    "timezone": "browser",
+    "panels": [],
+    "version": 1
+  }
+}
