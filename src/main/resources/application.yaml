@@ -48,6 +48,7 @@ integration:
 
 resilience4j:
   circuitbreaker:
+    circuit-breaker-aspect-order: 1
     instances:
       warehouse:
         sliding-window-type: COUNT_BASED

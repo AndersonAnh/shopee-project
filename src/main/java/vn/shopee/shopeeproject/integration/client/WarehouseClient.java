@@ -1,6 +1,5 @@
 package vn.shopee.shopeeproject.integration.client;
 
-import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -8,11 +7,13 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 import vn.shopee.shopeeproject.config.warehouserestconfig.WarehouseConfig;
+import vn.shopee.shopeeproject.exception.WarehouseUnavailableException;
 import vn.shopee.shopeeproject.integration.dto.ReserveRequest;
 import vn.shopee.shopeeproject.integration.dto.StockCheckResponse;
 
@@ -30,7 +31,6 @@ public class WarehouseClient {
 
     @Retryable(
             retryFor = {ResourceAccessException.class, HttpServerErrorException.class},
-            noRetryFor = {CallNotPermittedException.class},
             maxAttempts = 3,
             backoff = @Backoff(delay = 1000))
     @CircuitBreaker(name = "warehouse", fallbackMethod = "fallbackCheckStock")
@@ -45,20 +45,11 @@ public class WarehouseClient {
     }
 
     private StockCheckResponse fallbackCheckStock(UUID productId, Integer quantity, Throwable throwable) {
-        log.warn("Fallback сработал для checkStock: productId={}, quantity={}, причина={}",
-                productId, quantity, throwable.toString());
-
-        return StockCheckResponse.builder()
-                .productId(productId)
-                .available(false)
-                .availableQuantity(0)
-                .status("CREATED")
-                .build();
+        throw unavailable("checkStock", productId, quantity, throwable);
     }
 
     @Retryable(
             retryFor = {ResourceAccessException.class, HttpServerErrorException.class},
-            noRetryFor = {CallNotPermittedException.class},
             maxAttempts = 3,
             backoff = @Backoff(delay = 1000))
     @CircuitBreaker(name = "warehouse", fallbackMethod = "fallbackReserveStock")
@@ -75,14 +66,21 @@ public class WarehouseClient {
     }
 
     private StockCheckResponse fallbackReserveStock(UUID productId, Integer quantity, Throwable throwable) {
-        log.warn("Fallback сработал для reserveStock: productId={}, quantity={}, причина={}",
-                productId, quantity, throwable.toString());
+        throw unavailable("reserveStock", productId, quantity, throwable);
+    }
 
-        return StockCheckResponse.builder()
-                .productId(productId)
-                .available(false)
-                .availableQuantity(0)
-                .status("CREATED")
-                .build();
+    /**
+     * Ответы 4xx — это отказ по бизнес-правилу склада, а не его недоступность,
+     * поэтому они пробрасываются как есть и не превращаются в 503.
+     */
+    private WarehouseUnavailableException unavailable(String operation, UUID productId, Integer quantity,
+                                                      Throwable throwable) {
+        if (throwable instanceof HttpClientErrorException clientError) {
+            throw clientError;
+        }
+        log.warn("Склад недоступен на {}: productId={}, quantity={}, причина={}",
+                operation, productId, quantity, throwable.toString());
+        return new WarehouseUnavailableException(
+                "Склад недоступен на " + operation + ": productId=" + productId, throwable);
     }
 }
