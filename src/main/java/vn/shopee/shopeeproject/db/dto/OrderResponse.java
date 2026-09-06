@@ -1,4 +1,4 @@
-package vn.shopee.shopeeproject.dto;
+package vn.shopee.shopeeproject.db.dto;
 
 import lombok.Builder;
 
@@ -10,7 +10,7 @@ import java.util.UUID;
 @Builder
 public record OrderResponse(
         UUID orderId,
-        String orderStatus,
+        String status,
         BigDecimal totalAmount,
         LocalDateTime createdAt,
         LocalDate estimatedDelivery

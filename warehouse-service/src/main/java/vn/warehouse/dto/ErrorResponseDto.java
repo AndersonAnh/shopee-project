@@ -1,4 +1,12 @@
 package vn.warehouse.dto;
 
-public record ErrorResponse() {
+import lombok.Builder;
+import lombok.Data;
+
+@Builder
+@Data
+public class ErrorResponseDto {
+    private String code;
+    private String message;
 }
+

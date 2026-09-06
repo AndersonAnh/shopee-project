@@ -1,4 +1,15 @@
 package vn.warehouse.integration.kafka.dto;
 
-public class OrderConfirmedEvent {
+import lombok.Builder;
+
+import java.time.Instant;
+import java.util.UUID;
+
+@Builder
+public record OrderConfirmedEvent(
+        UUID orderId,
+        UUID productId,
+        Integer quantity,
+        Instant occurredAt
+) {
 }

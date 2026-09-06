@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration scan="true" scanPeriod="30 seconds" packagingData="true">
+
+    <!-- ===== Properties ===== -->
+    <property name="LOG_DIR" value="${LOG_DIR:-./logs}"/>
+    <property name="APP_NAME" value="${APP_NAME:-shopee-project}"/>
+    <property name="LOG_LEVEL_ROOT" value="${LOG_LEVEL_ROOT:-INFO}"/>
+    <property name="APP_LOG_LEVEL" value="${APP_LOG_LEVEL:-DEBUG}"/>
+    <property name="LOG_TOTAL_CAP" value="${LOG_TOTAL_CAP:-5GB}"/>
+    <property name="LOG_MAX_FILE_SIZE" value="${LOG_MAX_FILE_SIZE:-100MB}"/>
+    <property name="LOG_HISTORY_DAYS" value="${LOG_HISTORY_DAYS:-30}"/>
+
+    <!-- Имя из Spring, если задано -->
+    <springProperty scope="context" name="SPRING_APP" source="spring.application.name"/>
+    <property name="APP" value="${SPRING_APP:-${APP_NAME}}"/>
+
+    <!-- ===== Patterns ===== -->
+    <property name="PATTERN_BASE"
+              value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%level] [%property{APP}] [pid:%property{PID:-}] [%thread] [%X{correlationId:-N/A}] %logger{36} - %msg %n%ex{full}"/>
+    <property name="PATTERN_COLOR"
+              value="%d{HH:mm:ss.SSS} %highlight([%level]) [%property{APP}] [%green(%thread)] [%X{correlationId:-N/A}] %cyan(%logger{36}) - %msg %n%ex{short}"/>
+
+    <!-- ===== Console ===== -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <springProfile name="dev">
+                <pattern>${PATTERN_COLOR}</pattern>
+            </springProfile>
+            <springProfile name="!dev">
+                <pattern>${PATTERN_BASE}</pattern>
+            </springProfile>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+
+    <!-- ===== File (rolling by size+time) ===== -->
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_DIR}/${APP}.log</file>
+        <append>true</append>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>${PATTERN_BASE}</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_DIR}/${APP}-%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+            <maxFileSize>${LOG_MAX_FILE_SIZE}</maxFileSize>
+            <totalSizeCap>${LOG_TOTAL_CAP}</totalSizeCap>
+            <maxHistory>${LOG_HISTORY_DAYS}</maxHistory>
+            <cleanHistoryOnStart>true</cleanHistoryOnStart>
+        </rollingPolicy>
+    </appender>
+
+    <!-- ===== Error file ===== -->
+    <appender name="FILE_ERROR" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_DIR}/${APP}-error.log</file>
+        <append>true</append>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>ERROR</level>
+        </filter>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>${PATTERN_BASE}</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_DIR}/${APP}-error-%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+            <maxFileSize>${LOG_MAX_FILE_SIZE}</maxFileSize>
+            <totalSizeCap>${LOG_TOTAL_CAP}</totalSizeCap>
+            <maxHistory>${LOG_HISTORY_DAYS}</maxHistory>
+            <cleanHistoryOnStart>true</cleanHistoryOnStart>
+        </rollingPolicy>
+    </appender>
+
+    <!-- ===== JSON file (LogstashEncoder) ===== -->
+    <appender name="JSON" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_DIR}/${APP}.json</file>
+        <append>true</append>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_DIR}/${APP}-%d{yyyy-MM-dd}.%i.json.gz</fileNamePattern>
+            <maxFileSize>${LOG_MAX_FILE_SIZE}</maxFileSize>
+            <totalSizeCap>${LOG_TOTAL_CAP}</totalSizeCap>
+            <maxHistory>${LOG_HISTORY_DAYS}</maxHistory>
+            <cleanHistoryOnStart>true</cleanHistoryOnStart>
+        </rollingPolicy>
+        <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+            <!-- MDC (в т.ч. correlationId) попадает в JSON автоматически -->
+            <includeContext>true</includeContext>
+            <customFields>{"app":"${APP}"}</customFields>
+        </encoder>
+    </appender>
+
+    <!-- ===== Async wrappers ===== -->
+    <appender name="ASYNC_CONSOLE" class="ch.qos.logback.classic.AsyncAppender">
+        <discardingThreshold>0</discardingThreshold>
+        <queueSize>8192</queueSize>
+        <neverBlock>true</neverBlock>
+        <appender-ref ref="CONSOLE"/>
+    </appender>
+
+    <appender name="ASYNC_FILE" class="ch.qos.logback.classic.AsyncAppender">
+        <discardingThreshold>0</discardingThreshold>
+        <queueSize>16384</queueSize>
+        <neverBlock>true</neverBlock>
+        <appender-ref ref="FILE"/>
+    </appender>
+
+    <appender name="ASYNC_FILE_ERROR" class="ch.qos.logback.classic.AsyncAppender">
+        <discardingThreshold>0</discardingThreshold>
+        <queueSize>4096</queueSize>
+        <neverBlock>true</neverBlock>
+        <appender-ref ref="FILE_ERROR"/>
+    </appender>
+
+    <appender name="ASYNC_JSON" class="ch.qos.logback.classic.AsyncAppender">
+        <discardingThreshold>0</discardingThreshold>
+        <queueSize>8192</queueSize>
+        <neverBlock>true</neverBlock>
+        <appender-ref ref="JSON"/>
+    </appender>
+
+    <!-- ===== Noise control (сторонние библиотеки) ===== -->
+    <logger name="org.springframework" level="INFO"/>
+    <logger name="org.springframework.boot.autoconfigure" level="WARN"/>
+    <logger name="org.hibernate.SQL" level="WARN"/>
+    <logger name="org.hibernate.orm.jdbc.bind" level="WARN"/>
+    <logger name="org.apache.kafka" level="INFO"/>
+    <logger name="io.netty" level="WARN"/>
+    <logger name="org.apache.hc.client5" level="WARN"/>
+
+    <!-- Ваш код -->
+    <logger name="vn.shopee.shopeeproject" level="${APP_LOG_LEVEL}"/>
+
+    <!-- ===== Root ===== -->
+    <root level="${LOG_LEVEL_ROOT}">
+        <appender-ref ref="ASYNC_CONSOLE"/>
+        <appender-ref ref="ASYNC_FILE"/>
+        <appender-ref ref="ASYNC_FILE_ERROR"/>
+        <appender-ref ref="ASYNC_JSON"/>
+    </root>
+
+</configuration>

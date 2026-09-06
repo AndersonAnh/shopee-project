@@ -1,7 +1,7 @@
 package vn.shopee.shopeeproject.exception;
 
-public class StockResponseException extends RuntimeException {
-    public StockResponseException(String message) {
+public class StockReserveResponseException extends RuntimeException {
+    public StockReserveResponseException(String message) {
         super(message);
     }
 }

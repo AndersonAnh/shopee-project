@@ -1,4 +1,13 @@
 package vn.warehouse.dto;
 
-public record StockCheckResponse() {
-}
+import lombok.Builder;
+
+import java.util.UUID;
+
+@Builder
+public record StockCheckResponse(
+        UUID productId,
+        boolean available,
+        Integer availableQuantity,
+        String status
+) {}

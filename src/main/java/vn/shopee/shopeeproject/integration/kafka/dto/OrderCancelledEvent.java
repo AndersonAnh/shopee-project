@@ -1,4 +1,14 @@
 package vn.shopee.shopeeproject.integration.kafka.dto;
 
-public class OrderCancelledEvent {
+import lombok.Builder;
+
+import java.time.Instant;
+import java.util.UUID;
+
+@Builder
+public record OrderCancelledEvent(
+        UUID orderId,
+        String reason,
+        Instant occurredAt
+) {
 }
