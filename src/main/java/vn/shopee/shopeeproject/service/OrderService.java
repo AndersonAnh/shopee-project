@@ -23,13 +23,17 @@ import vn.shopee.shopeeproject.mapper.OrderMapper;
 import vn.shopee.shopeeproject.util.CheckProcessStockResponseUtil;
 import vn.shopee.shopeeproject.util.CheckResponseUtil;
 
+import java.math.BigDecimal;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class OrderService {
+
+    private static final int DELIVERY_DAYS = 3;
 
     private final OrderRepository orderRepository;
     private final OrderMapper dtoMapper;
@@ -41,6 +45,7 @@ public class OrderService {
         CheckResponseUtil.validateCreateOrder(request);
 
         Order order = dtoMapper.toOrder(request);
+        assembleOrder(order);
 
         for (OrderItem item : order.getOrderItems()) {
             StockCheckResponse stockCheck = warehouseClient.checkStock(item.getProductId(), item.getQuantity());
@@ -58,6 +63,16 @@ public class OrderService {
 
     void processStockResponse(StockCheckResponse stockCheckResponse) {
         CheckProcessStockResponseUtil.processStockResponse(stockCheckResponse);
+    }
+
+    private void assembleOrder(Order order) {
+        BigDecimal total = BigDecimal.ZERO;
+        for (OrderItem item : order.getOrderItems()) {
+            item.setOrder(order);
+            total = total.add(item.getPrice().multiply(BigDecimal.valueOf(item.getQuantity())));
+        }
+        order.setTotalAmount(total);
+        order.setEstimatedDelivery(LocalDate.now().plusDays(DELIVERY_DAYS));
     }
 
     private void publishOrderConfirmed(Order order) {

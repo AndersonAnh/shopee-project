@@ -11,7 +11,7 @@ import vn.warehouse.entity.ProductStock;
 import java.util.Optional;
 import java.util.UUID;
 
-public interface ProductStockRepository extends JpaRepository<ProductStock, Long> {
+public interface ProductStockRepository extends JpaRepository<ProductStock, UUID> {
 
     Optional<ProductStock> findByProductId(UUID productId);
 

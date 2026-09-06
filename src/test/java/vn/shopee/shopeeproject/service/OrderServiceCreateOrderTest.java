@@ -75,12 +75,9 @@ class OrderServiceCreateOrderTest {
         Order order = Order.builder()
                 .customerId(customerId)
                 .orderStatus(OrderStatus.CREATED)
-                .totalAmount(new BigDecimal("399.98"))
                 .createdAt(LocalDateTime.now())
-                .estimatedDelivery(LocalDate.now().plusDays(3))
                 .orderItems(List.of(item))
                 .build();
-        item.setOrder(order);
 
         StockCheckResponse available = StockCheckResponse.builder()
                 .productId(productId)
@@ -111,6 +108,11 @@ class OrderServiceCreateOrderTest {
         assertThat(order.getOrderStatus()).isEqualTo(OrderStatus.CONFIRMED);
         assertThat(result.status()).isEqualTo("CONFIRMED");
         assertThat(result.orderId()).isEqualTo(orderId);
+
+        // сборку агрегата делает сервис: обратная ссылка, сумма и дата доставки
+        assertThat(item.getOrder()).isSameAs(order);
+        assertThat(order.getTotalAmount()).isEqualByComparingTo("399.98");
+        assertThat(order.getEstimatedDelivery()).isEqualTo(LocalDate.now().plusDays(3));
 
         verify(warehouseClient).checkStock(productId, 2);
         verify(warehouseClient).reserveStock(productId, 2);

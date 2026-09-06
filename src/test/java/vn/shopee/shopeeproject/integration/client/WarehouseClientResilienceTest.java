@@ -95,7 +95,7 @@ class WarehouseClientResilienceTest {
         WarehouseConfig warehouseConfig(
                 @org.springframework.beans.factory.annotation.Value("${integration.warehouse.url}") String url) {
             WarehouseConfig config = new WarehouseConfig();
-            config.setWarehouseUrl(url);
+            config.setUrl(url);
             return config;
         }
     }

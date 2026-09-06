@@ -13,4 +13,14 @@ public interface StockMapper {
     @Mapping(target = "availableQuantity", source = "stock.availableQuantity")
     @Mapping(target = "status", expression = "java(stock.getAvailableQuantity() >= quantity ? \"OK\" : \"INSUFFICIENT\")")
     StockCheckResponse toCheckResponse(ProductStock stock, Integer quantity);
+
+    /**
+     * Ответ на резерв: количество уже списано, поэтому available отражает факт
+     * успешного резерва, а не сравнение остатка с запрошенным объёмом.
+     */
+    @Mapping(target = "productId", source = "productId")
+    @Mapping(target = "available", constant = "true")
+    @Mapping(target = "availableQuantity", source = "availableQuantity")
+    @Mapping(target = "status", constant = "RESERVED")
+    StockCheckResponse toReserveResponse(ProductStock stock);
 }

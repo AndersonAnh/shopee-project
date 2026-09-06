@@ -10,5 +10,5 @@ import org.springframework.stereotype.Component;
 @Component
 @ConfigurationProperties("integration.warehouse")
 public class WarehouseConfig {
-    private String warehouseUrl;
+    private String url;
 }

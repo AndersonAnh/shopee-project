@@ -11,7 +11,6 @@ import org.springframework.transaction.annotation.Transactional;
 import vn.warehouse.dto.ReserveRequest;
 import vn.warehouse.dto.StockCheckResponse;
 import vn.warehouse.entity.ProductStock;
-import vn.warehouse.exception.InsufficientStockException;
 import vn.warehouse.exception.ProductNotFoundException;
 import vn.warehouse.mapper.StockMapper;
 import vn.warehouse.repository.ProductStockRepository;
@@ -25,8 +24,9 @@ public class WarehouseService {
 
     private final ProductStockRepository stockRepository;
     private final StockMapper stockMapper;
+    private final StockReservationService stockReservationService;
 
-    @Cacheable(value = "stockStatus", key = "#productId")
+    @Cacheable(value = "stockStatus", key = "{#productId, #quantity}")
     @Transactional(readOnly = true)
     public StockCheckResponse checkStock(UUID productId, Integer quantity) {
         ProductStock stock = stockRepository.findByProductId(productId)
@@ -35,35 +35,11 @@ public class WarehouseService {
     }
 
     @Retryable(
-            value = {OptimisticLockingFailureException.class}, // ретраим только транзиентные конфликты
+            retryFor = {OptimisticLockingFailureException.class}, // ретраим только транзиентные конфликты
             maxAttempts = 3,
             backoff = @Backoff(delay = 100)
     )
     public StockCheckResponse reserveStock(ReserveRequest request) {
-        return doReserveStock(request);
-    }
-
-    // Внутренний метод: своя транзакция на каждую попытку
-    @Transactional
-    public StockCheckResponse doReserveStock(ReserveRequest request) {
-        UUID productId = request.productId();
-        Integer quantity = request.quantity();
-
-        ProductStock stock = stockRepository.findByProductIdWithLock(productId)
-                .orElseThrow(() -> new ProductNotFoundException("Товар не найден: " + productId));
-
-        if (stock.getAvailableQuantity() < quantity) {
-            throw new InsufficientStockException(
-                    String.format("Недостаточно товара. Доступно: %d, запрошено: %d",
-                            stock.getAvailableQuantity(), quantity)
-            );
-        }
-
-        stock.setAvailableQuantity(stock.getAvailableQuantity() - quantity);
-        stock.setReservedQuantity(stock.getReservedQuantity() + quantity);
-        stockRepository.save(stock);
-
-        log.info("Зарезервировано {} единиц товара {}", quantity, productId);
-        return stockMapper.toCheckResponse(stock, quantity);
+        return stockReservationService.reserve(request);
     }
 }

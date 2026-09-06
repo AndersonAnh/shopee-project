@@ -36,7 +36,7 @@ public class WarehouseClient {
     @CircuitBreaker(name = "warehouse", fallbackMethod = "fallbackCheckStock")
     public StockCheckResponse checkStock(UUID productId, Integer quantity) {
         log.debug("Проверяем остаток на складе: productId={}, quantity={}", productId, quantity);
-        String url = UriComponentsBuilder.fromUriString(warehouseConfig.getWarehouseUrl())
+        String url = UriComponentsBuilder.fromUriString(warehouseConfig.getUrl())
                 .path("/api/warehouse/check")
                 .queryParam("productId", productId)
                 .queryParam("qty", quantity)
@@ -55,7 +55,7 @@ public class WarehouseClient {
     @CircuitBreaker(name = "warehouse", fallbackMethod = "fallbackReserveStock")
     public StockCheckResponse reserveStock(UUID productId, Integer quantity) {
         log.debug("Резервируем на складе: productId={}, quantity={}", productId, quantity);
-        String url = UriComponentsBuilder.fromUriString(warehouseConfig.getWarehouseUrl())
+        String url = UriComponentsBuilder.fromUriString(warehouseConfig.getUrl())
                 .path("/api/warehouse/reserve")
                 .toUriString();
         ReserveRequest body = ReserveRequest.builder()
