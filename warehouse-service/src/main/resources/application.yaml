@@ -1,0 +1,92 @@
+spring:
+  application:
+    name: warehouse-service
+
+  datasource:
+    url: jdbc:postgresql://localhost:5433/warehouse-service
+    username: admin
+    password: warehouse
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      acks: all
+      retries: 3
+      properties:
+        enable.idempotence: true
+    consumer:
+      group-id: shopee-project
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      enable-auto-commit: false
+      listener:
+        ack-mode: record
+
+integration:
+  retry:
+    config:
+      maxAttempts: 3
+      initialInterval: 2000
+      multiplier: 2.0
+      maxInterval: 10000
+      retryableExceptions:
+        - java.net.SocketTimeoutException
+        - org.springframework.web.client.ResourceAccessException
+        - java.io.IOException
+      connectTimeout: 2000
+      readTimeout: 5000
+  warehouse:
+    warehouse-url: ${WAREHOUSE_URL:http://localhost:8081/warehouse}
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      warehouse:
+        sliding-window-type: COUNT_BASED
+        sliding-window-size: 10
+        minimum-number-of-calls: 5
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 10s
+        permitted-number-of-calls-in-half-open-state: 3
+        automatic-transition-from-open-to-half-open-enabled: true
+        record-exceptions:
+          - java.net.SocketTimeoutException
+          - org.springframework.web.client.ResourceAccessException
+          - org.springframework.web.client.HttpServerErrorException
+        ignore-exceptions:
+          - org.springframework.web.client.HttpClientErrorException
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: always
+  metrics:
+    tags:
+      application: ${spring.application.name}
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+  api-docs:
+    path: /v3/api-docs
+
+logging:
+  config: classpath:config/my-logging.xml
