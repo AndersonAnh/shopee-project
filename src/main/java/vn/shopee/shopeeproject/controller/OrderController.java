@@ -23,6 +23,7 @@ public class OrderController implements OrderApi {
     @Override
     public ResponseEntity<OrderResponse> createOrder(OrderRequest request) {
         OrderResponse response = orderService.createOrder(request);
+
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 

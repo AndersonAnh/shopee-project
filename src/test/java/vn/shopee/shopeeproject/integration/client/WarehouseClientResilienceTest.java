@@ -8,15 +8,17 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.autoconfigure.aop.AopAutoConfiguration;
+import org.springframework.boot.autoconfigure.context.ConfigurationPropertiesAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpStatus;
-import org.springframework.retry.annotation.EnableRetry;
 import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
+import vn.shopee.shopeeproject.config.retry.IntegrationRetryProperties;
+import vn.shopee.shopeeproject.config.retry.RetryConfig;
 import vn.shopee.shopeeproject.config.warehouserestconfig.WarehouseConfig;
 import vn.shopee.shopeeproject.exception.WarehouseUnavailableException;
 
@@ -32,9 +34,14 @@ import static org.springframework.test.web.client.response.MockRestResponseCreat
         classes = WarehouseClientResilienceTest.TestConfig.class,
         properties = {
                 "integration.warehouse.url=http://warehouse.test",
-                "resilience4j.circuitbreaker.circuit-breaker-aspect-order=1",
                 // держим breaker закрытым, чтобы проверять именно исчерпание retry
-                "resilience4j.circuitbreaker.instances.warehouse.minimum-number-of-calls=100"
+                "resilience4j.circuitbreaker.instances.warehouse.minimum-number-of-calls=100",
+                "integration.retry.config.max-attempts=3",
+                "integration.retry.config.initial-interval=10",
+                "integration.retry.config.multiplier=1.0",
+                "integration.retry.config.max-interval=10",
+                "integration.retry.config.retryable-exceptions[0]=org.springframework.web.client.ResourceAccessException",
+                "integration.retry.config.retryable-exceptions[1]=org.springframework.web.client.HttpServerErrorException"
         })
 class WarehouseClientResilienceTest {
 
@@ -76,10 +83,10 @@ class WarehouseClientResilienceTest {
     }
 
     @Configuration
-    @EnableRetry(order = 2)
-    @Import(WarehouseClient.class)
+    @Import({WarehouseClient.class, RetryConfig.class, IntegrationRetryProperties.class})
     @ImportAutoConfiguration({
             AopAutoConfiguration.class,
+            ConfigurationPropertiesAutoConfiguration.class,
             SpelResolverConfigurationOnMissingBean.class,
             FallbackConfigurationOnMissingBean.class,
             CircuitBreakerAutoConfiguration.class

@@ -40,6 +40,7 @@ integration:
       retryableExceptions:
         - java.net.SocketTimeoutException
         - org.springframework.web.client.ResourceAccessException
+        - org.springframework.web.client.HttpServerErrorException
         - java.io.IOException
       connectTimeout: 2000
       readTimeout: 5000
@@ -48,9 +49,8 @@ integration:
 
 resilience4j:
   circuitbreaker:
-    circuit-breaker-aspect-order: 1
-    instances:
-      warehouse:
+    configs:
+      default:
         sliding-window-type: COUNT_BASED
         sliding-window-size: 10
         minimum-number-of-calls: 5
@@ -58,12 +58,18 @@ resilience4j:
         wait-duration-in-open-state: 10s
         permitted-number-of-calls-in-half-open-state: 3
         automatic-transition-from-open-to-half-open-enabled: true
+        slow-call-duration-threshold: 3s
+        slow-call-rate-threshold: 50
+        register-health-indicator: true
         record-exceptions:
           - java.net.SocketTimeoutException
           - org.springframework.web.client.ResourceAccessException
           - org.springframework.web.client.HttpServerErrorException
         ignore-exceptions:
           - org.springframework.web.client.HttpClientErrorException
+    instances:
+      warehouse:
+        base-config: default
 
 management:
   server:
@@ -71,10 +77,13 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,info,metrics,prometheus
+        include: health,info,metrics,prometheus,circuitbreakers,circuitbreakerevents
   endpoint:
     health:
       show-details: always
+  health:
+    circuitbreakers:
+      enabled: true
   metrics:
     tags:
       application: ${spring.application.name}
@@ -82,8 +91,17 @@ management:
 springdoc:
   swagger-ui:
     path: /swagger-ui.html
+    tags-sorter: alpha
+    operations-sorter: alpha
   api-docs:
     path: /v3/api-docs
+  info:
+    title: My API
+    version: 1.0.0
+    description: API Documentation
+
+
+
 
 logging:
   config: classpath:config/my-logging.xml

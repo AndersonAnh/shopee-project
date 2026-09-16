@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import vn.shopee.shopeeproject.annotation.MyLog;
 import vn.shopee.shopeeproject.db.dto.OrderRequest;
 import vn.shopee.shopeeproject.db.dto.OrderResponse;
 import vn.shopee.shopeeproject.db.dto.UpdateStatusRequest;
@@ -40,45 +40,73 @@ public class OrderService {
     private final WarehouseClient warehouseClient;
     private final OrderEventProducer orderEventProducer;
 
-    @Transactional
-    public OrderResponse createOrder(OrderRequest request) {
-        CheckResponseUtil.validateCreateOrder(request);
+    @MyLog
+    public OrderResponse createOrder(OrderRequest request) {// возвр значение с полями заходит в параметры реквест
+        CheckResponseUtil.validateCreateOrder(request);// валидация входящего параметра,если какое то поля нал или остутствует- исключение
 
-        Order order = dtoMapper.toOrder(request);
-        assembleOrder(order);
+        Order order = dtoMapper.toOrder(request);// мапим с помощью дтомаппера входящий запрос и сохранем его в сущность
+        assembleOrder(order);// этот метод нужен для расчета суммы заказа и рассчета срока доставки товаров
 
-        for (OrderItem item : order.getOrderItems()) {
-            StockCheckResponse stockCheck = warehouseClient.checkStock(item.getProductId(), item.getQuantity());
-            processStockResponse(stockCheck);
+        for (OrderItem item : order.getOrderItems()) {//циклом проходим по всем товарам и
+            StockCheckResponse stockCheck = warehouseClient.checkStock(item.getProductId(), item.getQuantity());// ответ из склада кладем в перем стокчек
+            CheckProcessStockResponseUtil.processStockResponse(stockCheck);//валидация ответа от склада
 
-            StockCheckResponse reserved = warehouseClient.reserveStock(item.getProductId(), item.getQuantity());
-            CheckProcessStockResponseUtil.processReserveStockResponse(reserved);
+
+            StockCheckResponse reserved = warehouseClient.reserveStock(item.getProductId(), item.getQuantity());// ответ из склада что товар удачно зарезервирован и кладем в переменую резервед
+            CheckProcessStockResponseUtil.processReserveStockResponse(reserved);// валидация ответа из склада,что резерв прошел успешно
         }
 
-        order.setOrderStatus(OrderStatus.CONFIRMED);
-        Order saved = orderRepository.save(order);
-        publishOrderConfirmed(saved);
-        return dtoMapper.toOrderResponse(saved);
+        order.setOrderStatus(OrderStatus.CONFIRMED);// статус заказа = ок,подтвержден!!!
+        order.setOrderStatus(OrderStatus.WAITING_STOCK);// статус заказа - waiting stock
+        Order saved = orderRepository.save(order);// в перем сейвед сорхраняем заказ в репозитории
+        publishOrderConfirmed(saved);// отпрвка месаджа в топик конфермед топик
+        return dtoMapper.toOrderResponse(saved);// сохр заказ в репо мапим в дто
     }
 
-    void processStockResponse(StockCheckResponse stockCheckResponse) {
-        CheckProcessStockResponseUtil.processStockResponse(stockCheckResponse);
+    public OrderResponse getOrderById(UUID id) {
+        return dtoMapper.toOrderResponse(getOrderOrThrow(id));
     }
 
-    private void assembleOrder(Order order) {
-        BigDecimal total = BigDecimal.ZERO;
-        for (OrderItem item : order.getOrderItems()) {
-            item.setOrder(order);
-            total = total.add(item.getPrice().multiply(BigDecimal.valueOf(item.getQuantity())));
+    public Page<OrderResponse> getOrders(Pageable pageable) {
+        return orderRepository.findAllByOrderStatusNot(OrderStatus.CANCELLED, pageable)
+                .map(dtoMapper::toOrderResponse);
+    }
+
+    public OrderResponse updateStatus(UUID id, UpdateStatusRequest request) {
+        Order order = getOrderOrThrow(id);
+
+        validateStatusTransition(order.getOrderStatus(), request.status());
+
+        order.setOrderStatus(request.status());
+        orderRepository.save(order);
+        return dtoMapper.toOrderResponse(order);
+    }
+
+    public void cancelOrder(UUID id) {
+        Order order = getOrderOrThrow(id);
+
+        if (order.getOrderStatus() == OrderStatus.CANCELLED) {
+            throw new InvalidOrderStatusException("Заказ уже отменён: " + id);
         }
-        order.setTotalAmount(total);
-        order.setEstimatedDelivery(LocalDate.now().plusDays(DELIVERY_DAYS));
+
+        order.setOrderStatus(OrderStatus.CANCELLED);
+        orderRepository.save(order);
     }
 
-    private void publishOrderConfirmed(Order order) {
-        Instant occurredAt = Instant.now();
-        for (OrderItem item : order.getOrderItems()) {
-            orderEventProducer.sendOrderConfirmed(OrderConfirmedEvent.builder()
+    private void assembleOrder(Order order) {//обслуживающий метод
+        BigDecimal total = BigDecimal.ZERO;//создаем переменную и присваеваем значение- 0
+        for (OrderItem item : order.getOrderItems()) {// с циклом проходим все заказы и берем каждый товар сохраняем в перменую итем
+            item.setOrder(order);//у каждого товара присваевается заказ
+            total = total.add(item.getPrice().multiply(BigDecimal.valueOf(item.getQuantity())));//цена товара умножается кол-во товара и сохр в тотал
+        }
+        order.setTotalAmount(total);//меняется общая цена заказа происходит рассчет общей цены суммы заказа
+        order.setEstimatedDelivery(LocalDate.now().plusDays(DELIVERY_DAYS));// меняется срок доставки- т е через 3 дня
+    }
+
+    private void publishOrderConfirmed(Order order) {// отправляем месадж в кафка,в параметрах=заказ
+        Instant occurredAt = Instant.now();//мы задали точку отсчета времени
+        for (OrderItem item : order.getOrderItems()) {//цикл по всем товарам
+            orderEventProducer.sendOrderConfirmed(OrderConfirmedEvent.builder()//отправка события по подтвержденым заказам
                     .orderId(order.getId())
                     .productId(item.getProductId())
                     .quantity(item.getQuantity())
@@ -88,42 +116,9 @@ public class OrderService {
         log.info("Заказ подтверждён: orderId={}, items={}", order.getId(), order.getOrderItems().size());
     }
 
-    @Transactional(readOnly = true)
-    public OrderResponse getOrderById(UUID id) {
-        Order order = orderRepository.findById(id)
+    private Order getOrderOrThrow(UUID id) {
+        return orderRepository.findById(id)
                 .orElseThrow(() -> new OrderNotFoundException("Заказ не найден: " + id));
-        return dtoMapper.toOrderResponse(order);
-    }
-
-    @Transactional(readOnly = true)
-    public Page<OrderResponse> getOrders(Pageable pageable) {
-        return orderRepository.findAllByOrderStatusNot(OrderStatus.CANCELLED, pageable)
-                .map(dtoMapper::toOrderResponse);
-    }
-
-    @Transactional
-    public OrderResponse updateStatus(UUID id, UpdateStatusRequest request) {
-        Order order = orderRepository.findById(id)
-                .orElseThrow(() -> new OrderNotFoundException("Заказ не найден: " + id));
-
-        validateStatusTransition(order.getOrderStatus(), request.status());
-
-        order.setOrderStatus(request.status());
-        orderRepository.save(order);
-        return dtoMapper.toOrderResponse(order);
-    }
-
-    @Transactional
-    public void cancelOrder(UUID id) {
-        Order order = orderRepository.findById(id)
-                .orElseThrow(() -> new OrderNotFoundException("Заказ не найден: " + id));
-
-        if (order.getOrderStatus() == OrderStatus.CANCELLED) {
-            throw new InvalidOrderStatusException("Заказ уже отменён: " + id);
-        }
-
-        order.setOrderStatus(OrderStatus.CANCELLED);
-        orderRepository.save(order);
     }
 
     private void validateStatusTransition(OrderStatus current, OrderStatus target) {

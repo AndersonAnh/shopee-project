@@ -36,7 +36,6 @@ public class Order {
 
     private LocalDate estimatedDelivery;
 
-    @Embedded
     private DeliveryAddress deliveryAddress;
 
     @Builder.Default
