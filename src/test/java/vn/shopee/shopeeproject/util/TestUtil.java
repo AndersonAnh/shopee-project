@@ -127,21 +127,6 @@ public class TestUtil {
         return savedOrder;
     }
 
-    public static List<OrderItem> getOrderItemsForStockCheck() {
-        return List.of(
-                OrderItem.builder()
-                        .productId(UUID.fromString("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"))
-                        .quantity(2)
-                        .price(BigDecimal.valueOf(29.99))
-                        .build(),
-                OrderItem.builder()
-                        .productId(UUID.fromString("ffffffff-0000-1111-2222-333333333333"))
-                        .quantity(1)
-                        .price(BigDecimal.valueOf(15.50))
-                        .build()
-        );
-    }
-
     public static StockCheckResponse getAvailableStockCheckResponse() {
         return StockCheckResponse.builder()
                 .productId(UUID.fromString("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"))

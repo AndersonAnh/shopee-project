@@ -3,14 +3,11 @@ package vn.shopee.shopeeproject.util;
 import lombok.experimental.UtilityClass;
 import vn.shopee.shopeeproject.db.dto.OrderItemRequest;
 import vn.shopee.shopeeproject.db.dto.OrderRequest;
-import vn.shopee.shopeeproject.enums.OrderStatus;
 import vn.shopee.shopeeproject.exception.InvalidOrderException;
-import vn.shopee.shopeeproject.exception.InvalidOrderStatusException;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 @UtilityClass
 public class CheckResponseUtil {
