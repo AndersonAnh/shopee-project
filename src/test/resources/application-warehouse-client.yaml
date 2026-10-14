@@ -1,0 +1,25 @@
+# Профиль WarehouseClientResilienceTest.
+# Интервалы короткие, чтобы retry не растягивал тест.
+# Порог circuit breaker выше числа попыток: тест проверяет retry,
+# а не переход breaker в open.
+integration:
+  warehouse:
+    url: http://warehouse.test
+  retry:
+    config:
+      maxAttempts: 3
+      initialInterval: 10
+      multiplier: 1.0
+      maxInterval: 10
+      retryableExceptions:
+        - java.net.SocketTimeoutException
+        - org.springframework.web.client.ResourceAccessException
+        - org.springframework.web.client.HttpServerErrorException
+        - java.io.IOException
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      warehouse:
+        base-config: default
+        minimum-number-of-calls: 100

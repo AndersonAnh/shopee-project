@@ -10,30 +10,80 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: validate   # ????? ??????? Flyway, Hibernate ?????? ??????????
+      ddl-auto: validate
     open-in-view: false
 
   flyway:
     enabled: true
     locations: classpath:db/migration
     baseline-on-migrate: true
+    baseline-version: 0
 
   kafka:
     bootstrap-servers: localhost:9092
     producer:
+      client-id: ${spring.application.name}-producer
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
-      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
       acks: all
-      retries: 3
+      properties:
+        enable.idempotence: true
+        max.in.flight.requests.per.connection: 5
+
+integration:
+  retry:
+    config:
+      maxAttempts: 3
+      initialInterval: 2000
+      multiplier: 2.0
+      maxInterval: 10000
+      retryableExceptions:
+        - java.net.SocketTimeoutException
+        - org.springframework.web.client.ResourceAccessException
+        - org.springframework.web.client.HttpServerErrorException
+        - java.io.IOException
+      connectTimeout: 2000
+      readTimeout: 5000
+  warehouse:
+    url: ${WAREHOUSE_URL:http://localhost:8081}
+
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        sliding-window-type: COUNT_BASED
+        sliding-window-size: 10
+        minimum-number-of-calls: 5
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 10s
+        permitted-number-of-calls-in-half-open-state: 3
+        automatic-transition-from-open-to-half-open-enabled: true
+        slow-call-duration-threshold: 3s
+        slow-call-rate-threshold: 50
+        register-health-indicator: true
+        record-exceptions:
+          - java.net.SocketTimeoutException
+          - org.springframework.web.client.ResourceAccessException
+          - org.springframework.web.client.HttpServerErrorException
+        ignore-exceptions:
+          - org.springframework.web.client.HttpClientErrorException
+    instances:
+      warehouse:
+        base-config: default
 
 management:
+  server:
+    port: 8088
   endpoints:
     web:
       exposure:
-        include: health,info,metrics,prometheus
+        include: health,info,metrics,prometheus,circuitbreakers,circuitbreakerevents
   endpoint:
     health:
       show-details: always
+  health:
+    circuitbreakers:
+      enabled: true
   metrics:
     tags:
       application: ${spring.application.name}
@@ -41,9 +91,17 @@ management:
 springdoc:
   swagger-ui:
     path: /swagger-ui.html
+    tags-sorter: alpha
+    operations-sorter: alpha
   api-docs:
     path: /v3/api-docs
+  info:
+    title: My API
+    version: 1.0.0
+    description: API Documentation
+
+
+
 
 logging:
-  pattern:
-    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level [%X{correlationId}] %logger{36} - %msg%n"
+  config: classpath:config/my-logging.xml

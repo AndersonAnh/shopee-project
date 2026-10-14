@@ -1,0 +1,55 @@
+spring:
+  application:
+    name: warehouse-service
+
+  datasource:
+    url: jdbc:postgresql://localhost:5433/warehouse_service_db
+    username: admin
+    password: warehouse
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+
+  flyway:
+    enabled: true
+    locations: classpath:migration
+    baseline-on-migrate: true
+
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      group-id: warehouse-service
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      enable-auto-commit: false
+    listener:
+      ack-mode: record
+
+server:
+  port: 8081
+
+management:
+  server:
+    port: 8098
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus,caches   # добавили caches
+  endpoint:
+    health:
+      show-details: always
+  metrics:
+    enable:
+      cache: true          # добавили — включает сбор метрик по кэшам
+    tags:
+      application: ${spring.application.name}
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+  api-docs:
+    path: /v3/api-docs
