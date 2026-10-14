@@ -42,4 +42,13 @@ public class WarehouseService {
     public StockCheckResponse reserveStock(ReserveRequest request) {
         return stockReservationService.reserve(request);
     }
+
+    @Retryable(
+            retryFor = {OptimisticLockingFailureException.class},
+            maxAttempts = 3,
+            backoff = @Backoff(delay = 100)
+    )
+    public StockCheckResponse releaseStock(ReserveRequest request) {
+        return stockReservationService.release(request);
+    }
 }

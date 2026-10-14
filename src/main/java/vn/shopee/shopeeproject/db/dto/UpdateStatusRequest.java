@@ -1,5 +1,6 @@
 package vn.shopee.shopeeproject.db.dto;
 
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import vn.shopee.shopeeproject.enums.OrderStatus;
@@ -7,5 +8,7 @@ import vn.shopee.shopeeproject.enums.OrderStatus;
 @Builder
 public record UpdateStatusRequest(
         @NotNull(message = "статус обязателен")
-        OrderStatus status
+        OrderStatus status,
+        @NotBlank(message = "причина отмены обязательна")
+        String reason
 ) {}

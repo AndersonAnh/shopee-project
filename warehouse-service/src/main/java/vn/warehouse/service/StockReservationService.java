@@ -48,4 +48,27 @@ public class StockReservationService {
         log.info("Зарезервировано {} единиц товара {}", quantity, productId);
         return stockMapper.toReserveResponse(stock);
     }
+
+    @Transactional
+    public StockCheckResponse release(ReserveRequest request) {
+        UUID productId = request.productId();
+        Integer quantity = request.quantity();
+
+        ProductStock stock = stockRepository.findByProductIdWithLock(productId)
+                .orElseThrow(() -> new ProductNotFoundException("Товар не найден: " + productId));
+
+        if (stock.getReservedQuantity() < quantity) {
+            throw new InsufficientStockException(
+                    String.format("Недостаточно резерва. Зарезервировано: %d, запрошено: %d",
+                            stock.getReservedQuantity(), quantity)
+            );
+        }
+
+        stock.setReservedQuantity(stock.getReservedQuantity() - quantity);
+        stock.setAvailableQuantity(stock.getAvailableQuantity() + quantity);
+        stockRepository.save(stock);
+
+        log.info("Освобождено {} единиц товара {}", quantity, productId);
+        return stockMapper.toReleaseResponse(stock);
+    }
 }

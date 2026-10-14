@@ -11,6 +11,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 import vn.shopee.shopeeproject.config.warehouserestconfig.WarehouseConfig;
 import vn.shopee.shopeeproject.exception.WarehouseUnavailableException;
+import vn.shopee.shopeeproject.integration.dto.ReleaseCheckRequest;
 import vn.shopee.shopeeproject.integration.dto.ReserveRequest;
 import vn.shopee.shopeeproject.integration.dto.StockCheckResponse;
 
@@ -70,6 +71,27 @@ public class WarehouseClient {
 
     private StockCheckResponse fallbackReserveStock(UUID productId, Integer quantity, Throwable throwable) {
         throw unavailable("reserveStock", productId, quantity, throwable);
+    }
+
+    @CircuitBreaker(name = "warehouse", fallbackMethod = "fallbackReleaseStock")
+    public StockCheckResponse releaseStock(UUID productId, Integer quantity) {
+        String url = UriComponentsBuilder.fromUriString(warehouseConfig.getUrl())
+                .path("/api/warehouse/release")
+                .toUriString();
+        ReleaseCheckRequest body = ReleaseCheckRequest.builder()
+                .productId(productId)
+                .quantity(quantity)
+                .build();
+
+        return retryTemplate.execute(context -> {
+            log.debug("Освобождаем резерв на складе: productId={}, quantity={}, попытка={}",
+                    productId, quantity, context.getRetryCount() + 1);
+            return restTemplate.postForObject(url, body, StockCheckResponse.class);
+        });
+    }
+
+    private StockCheckResponse fallbackReleaseStock(UUID productId, Integer quantity, Throwable throwable) {
+        throw unavailable("releaseStock", productId, quantity, throwable);
     }
 
     /**

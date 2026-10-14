@@ -102,13 +102,6 @@
             <artifactId>micrometer-registry-prometheus</artifactId>
         </dependency>
 
-        <!-- 10. OpenAPI / Swagger (единственная зависимость springdoc) -->
-        <dependency>
-            <groupId>org.springdoc</groupId>
-            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-            <version>${springdoc.version}</version>
-        </dependency>
-        <!-- swagger-annotations НЕ НУЖЕН отдельно — он уже внутри springdoc -->
 
         <!-- 11. Lombok -->
         <dependency>

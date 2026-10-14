@@ -14,10 +14,15 @@ import vn.shopee.shopeeproject.db.entity.OrderItem;
 import vn.shopee.shopeeproject.db.repository.OrderRepository;
 import vn.shopee.shopeeproject.enums.OrderStatus;
 import vn.shopee.shopeeproject.exception.InvalidOrderStatusException;
+import vn.shopee.shopeeproject.exception.NoSuchStatusException;
 import vn.shopee.shopeeproject.exception.OrderNotFoundException;
+import vn.shopee.shopeeproject.exception.WarehouseUnavailableException;
 import vn.shopee.shopeeproject.integration.client.WarehouseClient;
 import vn.shopee.shopeeproject.integration.dto.StockCheckResponse;
+import vn.shopee.shopeeproject.integration.kafka.dto.OrderCancelledEvent;
 import vn.shopee.shopeeproject.integration.kafka.dto.OrderConfirmedEvent;
+import vn.shopee.shopeeproject.integration.kafka.dto.OrderPendingReviewEvent;
+import vn.shopee.shopeeproject.integration.kafka.dto.OrderWaitingStockEvent;
 import vn.shopee.shopeeproject.integration.kafka.producer.OrderEventProducer;
 import vn.shopee.shopeeproject.mapper.OrderMapper;
 import vn.shopee.shopeeproject.util.CheckProcessStockResponseUtil;
@@ -39,6 +44,7 @@ public class OrderService {
     private final OrderMapper dtoMapper;
     private final WarehouseClient warehouseClient;
     private final OrderEventProducer orderEventProducer;
+    private final OrderValidator orderValidator;
 
     @MyLog
     public OrderResponse createOrder(OrderRequest request) {// возвр значение с полями заходит в параметры реквест
@@ -48,23 +54,30 @@ public class OrderService {
         assembleOrder(order);// этот метод нужен для расчета суммы заказа и рассчета срока доставки товаров
 
         for (OrderItem item : order.getOrderItems()) {//циклом проходим по всем товарам и
-            StockCheckResponse stockCheck = warehouseClient.checkStock(item.getProductId(), item.getQuantity());// ответ из склада кладем в перем стокчек
+            StockCheckResponse stockCheck;
+            try {
+                stockCheck = warehouseClient.checkStock(item.getProductId(), item.getQuantity());
+            } catch (WarehouseUnavailableException exception) {
+                return handleWarehouseError(order);//приватный метод при сценарии - ошибка внешнего сервиса склада
+            }
             CheckProcessStockResponseUtil.processStockResponse(stockCheck);//валидация ответа от склада
-
-
+            if (!stockCheck.available()) {
+                return handleOutOfStock(order);//приватный метод при сценарии товара нет на складе
+            }
             StockCheckResponse reserved = warehouseClient.reserveStock(item.getProductId(), item.getQuantity());// ответ из склада что товар удачно зарезервирован и кладем в переменую резервед
             CheckProcessStockResponseUtil.processReserveStockResponse(reserved);// валидация ответа из склада,что резерв прошел успешно
         }
 
         order.setOrderStatus(OrderStatus.CONFIRMED);// статус заказа = ок,подтвержден!!!
-        order.setOrderStatus(OrderStatus.WAITING_STOCK);// статус заказа - waiting stock
         Order saved = orderRepository.save(order);// в перем сейвед сорхраняем заказ в репозитории
         publishOrderConfirmed(saved);// отпрвка месаджа в топик конфермед топик
         return dtoMapper.toOrderResponse(saved);// сохр заказ в репо мапим в дто
     }
 
     public OrderResponse getOrderById(UUID id) {
-        return dtoMapper.toOrderResponse(getOrderOrThrow(id));
+        Order order = orderRepository.findById(id)
+                .orElseThrow(() -> new OrderNotFoundException("Заказ не найден: " + id));
+        return dtoMapper.toOrderResponse(order);
     }
 
     public Page<OrderResponse> getOrders(Pageable pageable) {
@@ -73,17 +86,30 @@ public class OrderService {
     }
 
     public OrderResponse updateStatus(UUID id, UpdateStatusRequest request) {
-        Order order = getOrderOrThrow(id);
+        Order order = orderRepository.findById(id)
+                .orElseThrow(() -> new OrderNotFoundException("Заказ не найден: " + id));
 
-        validateStatusTransition(order.getOrderStatus(), request.status());
+        if (request.status() != OrderStatus.CANCELLED) {
+            throw new NoSuchStatusException("Обновление статуса поддерживает только CANCELLED: " + request.status());
+        }
 
-        order.setOrderStatus(request.status());
-        orderRepository.save(order);
-        return dtoMapper.toOrderResponse(order);
+        orderValidator.canCancel(order);
+
+        boolean reserved = hasReservedStock(order);
+        dtoMapper.updateEntity(request, order);
+
+        if (reserved) {
+            releaseReservedStock(order);
+        }
+
+        Order saved = orderRepository.save(order);
+        publishOrderCancelled(saved, request.reason());
+        return dtoMapper.toOrderResponse(saved);
     }
 
     public void cancelOrder(UUID id) {
-        Order order = getOrderOrThrow(id);
+        Order order = orderRepository.findById(id)
+                .orElseThrow(() -> new OrderNotFoundException("Заказ не найден: " + id));
 
         if (order.getOrderStatus() == OrderStatus.CANCELLED) {
             throw new InvalidOrderStatusException("Заказ уже отменён: " + id);
@@ -92,6 +118,21 @@ public class OrderService {
         order.setOrderStatus(OrderStatus.CANCELLED);
         orderRepository.save(order);
     }
+
+    private OrderResponse handleOutOfStock(Order order) {
+        order.setOrderStatus(OrderStatus.WAITING_STOCK);
+        Order saved = orderRepository.save(order);
+        publishOrderWaitingStock(saved);
+        return dtoMapper.toOrderResponse(saved);
+    }
+
+    private OrderResponse handleWarehouseError(Order order) {
+        order.setOrderStatus(OrderStatus.CREATED);
+        Order saved = orderRepository.save(order);
+        publishOrderPendingReview(saved);
+        return dtoMapper.toOrderResponse(saved);
+    }
+
 
     private void assembleOrder(Order order) {//обслуживающий метод
         BigDecimal total = BigDecimal.ZERO;//создаем переменную и присваеваем значение- 0
@@ -116,15 +157,48 @@ public class OrderService {
         log.info("Заказ подтверждён: orderId={}, items={}", order.getId(), order.getOrderItems().size());
     }
 
-    private Order getOrderOrThrow(UUID id) {
-        return orderRepository.findById(id)
-                .orElseThrow(() -> new OrderNotFoundException("Заказ не найден: " + id));
+    private void publishOrderPendingReview(Order order) {// отправляем месадж в кафка,в параметрах=заказ
+        Instant occurredAt = Instant.now();//мы задали точку отсчета времени
+        for (OrderItem item : order.getOrderItems()) {//цикл по всем товарам
+            orderEventProducer.sendOrderPendingReview(OrderPendingReviewEvent.builder()//отправка события по НЕподтвержденым!!!! заказам
+                    .orderId(order.getId())
+                    .productId(item.getProductId())
+                    .quantity(item.getQuantity())
+                    .occurredAt(occurredAt)
+                    .build());
+        }
+        log.info("Товара нет на складе: orderId={}, items={}", order.getId(), order.getOrderItems().size());
     }
 
-    private void validateStatusTransition(OrderStatus current, OrderStatus target) {
-        if (current == OrderStatus.WAITING_STOCK || current == OrderStatus.CANCELLED) {
-            throw new InvalidOrderStatusException(
-                    String.format("Нельзя изменить статус из %s в %s", current, target));
+    private void publishOrderWaitingStock(Order order) {// отправляем месадж в кафка,в параметрах=заказ
+        Instant occurredAt = Instant.now();//мы задали точку отсчета времени
+        for (OrderItem item : order.getOrderItems()) {//цикл по всем товарам
+            orderEventProducer.sendOrderWaitingStock(OrderWaitingStockEvent.builder()//отправка события по НЕподтвержденым!!!! заказам
+                    .orderId(order.getId())
+                    .productId(item.getProductId())
+                    .occurredAt(occurredAt)
+                    .build());
         }
+        log.info("Товара нет на складе: orderId={}, items={}", order.getId(), order.getOrderItems().size());
+    }
+
+    private boolean hasReservedStock(Order order) {
+        return order.getOrderStatus() == OrderStatus.CONFIRMED;
+    }
+
+    private void releaseReservedStock(Order order) {
+        for (OrderItem item : order.getOrderItems()) {
+            StockCheckResponse released = warehouseClient.releaseStock(item.getProductId(), item.getQuantity());
+            CheckProcessStockResponseUtil.processReleaseStockResponse(released);
+        }
+    }
+
+    private void publishOrderCancelled(Order order, String reason) {
+        orderEventProducer.sendOrderCancelled(OrderCancelledEvent.builder()
+                .orderId(order.getId())
+                .reason(reason)
+                .occurredAt(Instant.now())
+                .build());
+        log.info("Заказ отменён: orderId={}, reason={}", order.getId(), reason);
     }
 }

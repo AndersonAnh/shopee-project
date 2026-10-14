@@ -1,11 +1,15 @@
 package vn.shopee.shopeeproject.mapper;
 
+import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
+import org.mapstruct.MappingTarget;
+import org.mapstruct.ReportingPolicy;
 import vn.shopee.shopeeproject.db.dto.OrderItemRequest;
 import vn.shopee.shopeeproject.db.dto.OrderRequest;
 import vn.shopee.shopeeproject.db.dto.OrderResponse;
+import vn.shopee.shopeeproject.db.dto.UpdateStatusRequest;
 import vn.shopee.shopeeproject.db.entity.Order;
 import vn.shopee.shopeeproject.db.entity.OrderItem;
 
@@ -24,6 +28,7 @@ public interface OrderMapper {
     @Mapping(target = "orderItems", source = "items")
     @Mapping(target = "totalAmount", ignore = true)
     @Mapping(target = "estimatedDelivery", ignore = true)
+    @Mapping(target = "cancelledAt", ignore = true)
     Order toOrder(OrderRequest orderRequest);
 
     @Mapping(target = "id", ignore = true)
@@ -33,4 +38,9 @@ public interface OrderMapper {
     @Mapping(target = "orderId", source = "id")
     @Mapping(target = "status", source = "orderStatus")
     OrderResponse toOrderResponse(Order order);
+
+    @BeanMapping(unmappedTargetPolicy = ReportingPolicy.IGNORE)
+    @Mapping(target = "orderStatus", source = "status")
+    @Mapping(target = "cancelledAt", expression = "java(LocalDateTime.now())")
+    void updateEntity(UpdateStatusRequest request, @MappingTarget Order order);
 }

@@ -10,7 +10,6 @@ public record OrderPendingReviewEvent(
         UUID orderId,
         UUID productId,
         Integer quantity,
-        String reason,
         Instant occurredAt
 ) {
 }

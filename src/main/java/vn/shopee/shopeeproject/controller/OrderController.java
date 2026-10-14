@@ -3,7 +3,6 @@ package vn.shopee.shopeeproject.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 import vn.shopee.shopeeproject.db.dto.OrderRequest;
@@ -11,6 +10,7 @@ import vn.shopee.shopeeproject.db.dto.OrderResponse;
 import vn.shopee.shopeeproject.db.dto.PageResponse;
 import vn.shopee.shopeeproject.db.dto.UpdateStatusRequest;
 import vn.shopee.shopeeproject.service.OrderService;
+import vn.shopee.shopeeproject.util.ControllerUtil;
 
 import java.util.UUID;
 
@@ -23,8 +23,7 @@ public class OrderController implements OrderApi {
     @Override
     public ResponseEntity<OrderResponse> createOrder(OrderRequest request) {
         OrderResponse response = orderService.createOrder(request);
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        return ControllerUtil.validatorResponse(response);
     }
 
     @Override

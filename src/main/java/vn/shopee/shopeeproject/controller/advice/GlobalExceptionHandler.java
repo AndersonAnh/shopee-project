@@ -1,10 +1,7 @@
 package vn.shopee.shopeeproject.controller.advice;
 
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -12,10 +9,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.client.ResourceAccessException;
 import vn.shopee.shopeeproject.dto.ErrorDto;
-import vn.shopee.shopeeproject.exception.CannotCancelException;
-import vn.shopee.shopeeproject.exception.InvalidOrderException;
-import vn.shopee.shopeeproject.exception.OrderNotFoundException;
-import vn.shopee.shopeeproject.exception.WarehouseUnavailableException;
+import vn.shopee.shopeeproject.exception.*;
 
 import java.io.IOException;
 import java.net.SocketTimeoutException;
@@ -66,6 +60,30 @@ public class GlobalExceptionHandler {
     }
 
     @ResponseBody
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(NoSuchStatusException.class)
+    protected ErrorDto handleNoSuchStatus(NoSuchStatusException exception) {
+        log.warn("Некорректный статус заказа: {}", exception.getMessage());
+        return ErrorDto.builder()
+                .code("NO_SUCH_STATUS")
+                .header("Некорректный статус")
+                .message(exception.getMessage())
+                .build();
+    }
+
+    @ResponseBody
+    @ResponseStatus(HttpStatus.CONFLICT)
+    @ExceptionHandler(InvalidOrderStatusException.class)
+    protected ErrorDto handleInvalidOrderStatus(InvalidOrderStatusException exception) {
+        log.warn("Недопустимый переход статуса: {}", exception.getMessage());
+        return ErrorDto.builder()
+                .code("INVALID_ORDER_STATUS")
+                .header("Недопустимый статус заказа")
+                .message(exception.getMessage())
+                .build();
+    }
+
+    @ResponseBody
     @ResponseStatus(HttpStatus.CONFLICT)
     @ExceptionHandler(CannotCancelException.class)
     protected ErrorDto handleCannotCancel(CannotCancelException exception) {
@@ -96,7 +114,7 @@ public class GlobalExceptionHandler {
             ResourceAccessException.class,
             IOException.class
     })
-    protected ErrorDto handleIntegrationException(Exception exception) {
+    protected ErrorDto handleIntegrationException(ConnectTimeoutException exception) {
         log.error("Ошибка интеграции с внешним сервисом: {}", exception.getMessage(), exception);
         return ErrorDto.builder()
                 .code("INTEGRATION_ERROR")

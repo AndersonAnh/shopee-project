@@ -25,4 +25,10 @@ public interface WarehouseApi {
     ResponseEntity<StockCheckResponse> reserveStock(
             @Valid @RequestBody ReserveRequest request
     );
+
+    @Operation(summary = "Освобождение резерва")
+    @PostMapping("/release")
+    ResponseEntity<StockCheckResponse> releaseStock(
+            @Valid @RequestBody ReserveRequest request
+    );
 }

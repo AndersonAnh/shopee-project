@@ -23,4 +23,10 @@ public interface StockMapper {
     @Mapping(target = "availableQuantity", source = "availableQuantity")
     @Mapping(target = "status", constant = "RESERVED")
     StockCheckResponse toReserveResponse(ProductStock stock);
+
+    @Mapping(target = "productId", source = "productId")
+    @Mapping(target = "available", constant = "true")
+    @Mapping(target = "availableQuantity", source = "availableQuantity")
+    @Mapping(target = "status", constant = "RELEASED")
+    StockCheckResponse toReleaseResponse(ProductStock stock);
 }

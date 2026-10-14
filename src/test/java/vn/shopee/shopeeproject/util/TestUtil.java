@@ -3,6 +3,7 @@ package vn.shopee.shopeeproject.util;
 import vn.shopee.shopeeproject.db.dto.OrderItemRequest;
 import vn.shopee.shopeeproject.db.dto.OrderRequest;
 import vn.shopee.shopeeproject.db.dto.OrderResponse;
+import vn.shopee.shopeeproject.db.dto.UpdateStatusRequest;
 import vn.shopee.shopeeproject.db.entity.Order;
 import vn.shopee.shopeeproject.db.entity.OrderItem;
 import vn.shopee.shopeeproject.db.entity.pojo.DeliveryAddress;
@@ -156,6 +157,21 @@ public class TestUtil {
                 .available(true)
                 .availableQuantity(8) // остаток после резерва
                 .status("RESERVED")
+                .build();
+    }
+
+    public static UpdateStatusRequest getUpdateStatusRequest() {
+        return UpdateStatusRequest.builder()
+                .status(OrderStatus.CANCELLED)
+                .reason("Обновление статуса поддерживает только CANCELLED")
+                .build();
+    }
+
+    public static OrderItemRequest getRequest() {
+        return  OrderItemRequest.builder()
+                .productId(UUID.fromString("11111111-2222-3333-4444-555555555555"))
+                .quantity(2)
+                .price(BigDecimal.valueOf(29.99))
                 .build();
     }
 

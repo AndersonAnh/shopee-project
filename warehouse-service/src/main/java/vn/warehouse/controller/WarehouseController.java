@@ -26,4 +26,9 @@ public class WarehouseController implements WarehouseApi {
     public ResponseEntity<StockCheckResponse> reserveStock(@Valid @RequestBody ReserveRequest request) {
         return ResponseEntity.ok(warehouseService.reserveStock(request));
     }
+
+    @Override
+    public ResponseEntity<StockCheckResponse> releaseStock(@Valid @RequestBody ReserveRequest request) {
+        return ResponseEntity.ok(warehouseService.releaseStock(request));
+    }
 }

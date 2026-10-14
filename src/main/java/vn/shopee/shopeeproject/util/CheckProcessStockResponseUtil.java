@@ -28,4 +28,13 @@ public class CheckProcessStockResponseUtil {
             throw new StockReserveResponseException("Не удалось зарезервировать товар: productId=" + stockCheckResponse.productId());
         }
     }
+
+    public static void processReleaseStockResponse(StockCheckResponse stockCheckResponse) {
+        if (stockCheckResponse == null) {
+            throw new WarehouseUnavailableException("Склад вернул пустой ответ на освобождение резерва");
+        }
+        if (!stockCheckResponse.available()) {
+            throw new StockReserveResponseException("Не удалось освободить резерв: productId=" + stockCheckResponse.productId());
+        }
+    }
 }

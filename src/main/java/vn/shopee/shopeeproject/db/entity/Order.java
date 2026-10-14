@@ -34,6 +34,8 @@ public class Order {
 
     private LocalDateTime createdAt;
 
+    private LocalDateTime cancelledAt;
+
     private LocalDate estimatedDelivery;
 
     private DeliveryAddress deliveryAddress;
