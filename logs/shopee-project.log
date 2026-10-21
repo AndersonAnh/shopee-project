@@ -1,0 +1,78 @@
+2026-10-19 10:16:05.700 [INFO] [null] [pid:null] [background-preinit] [N/A] o.h.validator.internal.util.Version - HV000001: Hibernate Validator 8.0.1.Final 
+2026-10-19 10:16:05.812 [INFO] [null] [pid:null] [main] [N/A] v.s.s.d.r.OrderRepositoryTest - Starting OrderRepositoryTest using Java 21.0.5 with PID 34712 (started by AndreyS in D:\shopee-project) 
+2026-10-19 10:16:05.812 [DEBUG] [null] [pid:null] [main] [N/A] v.s.s.d.r.OrderRepositoryTest - Running with Spring Boot v3.2.4, Spring v6.1.5 
+2026-10-19 10:16:05.814 [INFO] [null] [pid:null] [main] [N/A] v.s.s.d.r.OrderRepositoryTest - No active profile set, falling back to 1 default profile: "default" 
+2026-10-19 10:16:06.600 [INFO] [null] [pid:null] [main] [N/A] o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode. 
+2026-10-19 10:16:06.701 [INFO] [null] [pid:null] [main] [N/A] o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 89 ms. Found 1 JPA repository interface. 
+2026-10-19 10:16:07.633 [INFO] [null] [pid:null] [main] [N/A] o.f.c.i.license.VersionPrinter - Flyway Community Edition 9.22.3 by Redgate 
+2026-10-19 10:16:07.633 [INFO] [null] [pid:null] [main] [N/A] o.f.c.i.license.VersionPrinter - See release notes here: https://rd.gt/416ObMi 
+2026-10-19 10:16:07.633 [INFO] [null] [pid:null] [main] [N/A] o.f.c.i.license.VersionPrinter -  
+2026-10-19 10:16:07.695 [INFO] [null] [pid:null] [main] [N/A] org.flywaydb.core.FlywayExecutor - Database: jdbc:postgresql://localhost:58103/test (PostgreSQL 16.15) 
+2026-10-19 10:16:07.718 [WARN] [null] [pid:null] [main] [N/A] o.f.c.i.database.base.Database - Flyway upgrade recommended: PostgreSQL 16.15 is newer than this version of Flyway and support has not been tested. The latest supported version of PostgreSQL is 15. 
+2026-10-19 10:16:07.807 [INFO] [null] [pid:null] [main] [N/A] o.f.c.i.s.JdbcTableSchemaHistory - Schema history table "public"."flyway_schema_history" does not exist yet 
+2026-10-19 10:16:07.815 [INFO] [null] [pid:null] [main] [N/A] o.f.core.internal.command.DbValidate - Successfully validated 4 migrations (execution time 00:00.050s) 
+2026-10-19 10:16:07.851 [INFO] [null] [pid:null] [main] [N/A] o.f.c.i.s.JdbcTableSchemaHistory - Creating Schema History table "public"."flyway_schema_history" ... 
+2026-10-19 10:16:07.949 [INFO] [null] [pid:null] [main] [N/A] o.f.core.internal.command.DbMigrate - Current version of schema "public": << Empty Schema >> 
+2026-10-19 10:16:07.963 [INFO] [null] [pid:null] [main] [N/A] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "1 - create orders table" 
+2026-10-19 10:16:08.007 [INFO] [null] [pid:null] [main] [N/A] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "2 - create order items table" 
+2026-10-19 10:16:08.042 [INFO] [null] [pid:null] [main] [N/A] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "3 - add orders indexes" 
+2026-10-19 10:16:08.079 [INFO] [null] [pid:null] [main] [N/A] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "4 - add orders cancelled at" 
+2026-10-19 10:16:08.102 [INFO] [null] [pid:null] [main] [N/A] o.f.core.internal.command.DbMigrate - Successfully applied 4 migrations to schema "public", now at version v4 (execution time 00:00.060s) 
+2026-10-19 10:16:08.252 [INFO] [null] [pid:null] [main] [N/A] o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default] 
+2026-10-19 10:16:08.377 [INFO] [null] [pid:null] [main] [N/A] org.hibernate.Version - HHH000412: Hibernate ORM core version 6.4.4.Final 
+2026-10-19 10:16:08.453 [INFO] [null] [pid:null] [main] [N/A] o.h.c.i.RegionFactoryInitiator - HHH000026: Second-level cache disabled 
+2026-10-19 10:16:08.881 [INFO] [null] [pid:null] [main] [N/A] o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer 
+2026-10-19 10:16:08.935 [INFO] [null] [pid:null] [main] [N/A] com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting... 
+2026-10-19 10:16:08.981 [INFO] [null] [pid:null] [main] [N/A] com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@5c81ddab 
+2026-10-19 10:16:08.983 [INFO] [null] [pid:null] [main] [N/A] com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed. 
+2026-10-19 10:16:10.539 [INFO] [null] [pid:null] [main] [N/A] o.h.e.t.j.p.i.JtaPlatformInitiator - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration) 
+2026-10-19 10:16:10.611 [INFO] [null] [pid:null] [main] [N/A] o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default' 
+2026-10-19 10:16:11.215 [INFO] [null] [pid:null] [main] [N/A] v.s.s.d.r.OrderRepositoryTest - Started OrderRepositoryTest in 7.133 seconds (process running for 29.387) 
+2026-10-19 10:16:13.301 [INFO] [null] [pid:null] [main] [N/A] v.s.s.i.c.WarehouseClientResilienceTest - Starting WarehouseClientResilienceTest using Java 21.0.5 with PID 34712 (started by AndreyS in D:\shopee-project) 
+2026-10-19 10:16:13.301 [DEBUG] [null] [pid:null] [main] [N/A] v.s.s.i.c.WarehouseClientResilienceTest - Running with Spring Boot v3.2.4, Spring v6.1.5 
+2026-10-19 10:16:13.301 [INFO] [null] [pid:null] [main] [N/A] v.s.s.i.c.WarehouseClientResilienceTest - The following 1 profile is active: "warehouse-client" 
+2026-10-19 10:16:14.299 [INFO] [null] [pid:null] [main] [N/A] v.s.s.i.c.WarehouseClientResilienceTest - Started WarehouseClientResilienceTest in 1.095 seconds (process running for 32.472) 
+2026-10-19 10:16:14.386 [DEBUG] [null] [pid:null] [main] [N/A] v.s.s.i.client.WarehouseClient - Проверяем остаток на складе: productId=11111111-1111-1111-1111-111111111111, quantity=1, попытка=1 
+2026-10-19 10:16:14.535 [DEBUG] [null] [pid:null] [main] [N/A] v.s.s.i.client.WarehouseClient - Проверяем остаток на складе: productId=11111111-1111-1111-1111-111111111111, quantity=1, попытка=1 
+2026-10-19 10:16:14.560 [DEBUG] [null] [pid:null] [main] [N/A] v.s.s.i.client.WarehouseClient - Проверяем остаток на складе: productId=11111111-1111-1111-1111-111111111111, quantity=1, попытка=2 
+2026-10-19 10:16:14.576 [DEBUG] [null] [pid:null] [main] [N/A] v.s.s.i.client.WarehouseClient - Проверяем остаток на складе: productId=11111111-1111-1111-1111-111111111111, quantity=1, попытка=3 
+2026-10-19 10:16:14.582 [WARN] [null] [pid:null] [main] [N/A] v.s.s.i.client.WarehouseClient - Склад недоступен на checkStock: productId=11111111-1111-1111-1111-111111111111, quantity=1, причина=org.springframework.web.client.HttpServerErrorException$InternalServerError: 500 Internal Server Error: [no body] 
+2026-10-19 10:16:15.563 [INFO] [null] [pid:null] [main] [N/A] v.s.s.service.OrderService - Заказ подтверждён: orderId=f9b2c8a4-1e33-47d8-9f0a-6b5d3e8c12f1, items=2 
+2026-10-19 10:16:15.639 [INFO] [null] [pid:null] [main] [N/A] v.s.s.service.OrderService - Заказ отменён: orderId=f9b2c8a4-1e33-47d8-9f0a-6b5d3e8c12f1, reason=Обновление статуса поддерживает только CANCELLED 
+2026-10-19 10:16:15.680 [INFO] [null] [pid:null] [main] [N/A] tc.postgres:16-alpine - Creating container for image: postgres:16-alpine 
+2026-10-19 10:16:15.868 [INFO] [null] [pid:null] [main] [N/A] tc.postgres:16-alpine - Container postgres:16-alpine is starting: b751386ff0bb107a38eb5729135a2f4314128c2611eeeb85bc7dbae94174ee44 
+2026-10-19 10:16:19.641 [INFO] [null] [pid:null] [main] [N/A] tc.postgres:16-alpine - Container postgres:16-alpine started in PT3.9605075S 
+2026-10-19 10:16:19.641 [INFO] [null] [pid:null] [main] [N/A] tc.postgres:16-alpine - Container is started (JDBC URL: jdbc:postgresql://localhost:58161/test?loggerLevel=OFF) 
+2026-10-19 10:16:19.649 [INFO] [null] [pid:null] [main] [N/A] o.s.t.c.s.AnnotationConfigContextLoaderUtils - Could not detect default configuration classes for test class [vn.shopee.shopeeproject.ShopeeProjectApplicationTests]: ShopeeProjectApplicationTests does not declare any static, non-private, non-final, nested classes annotated with @Configuration. 
+2026-10-19 10:16:19.692 [INFO] [null] [pid:null] [main] [N/A] o.s.b.t.c.SpringBootTestContextBootstrapper - Found @SpringBootConfiguration vn.shopee.shopeeproject.ShopeeProjectApplication for test class vn.shopee.shopeeproject.ShopeeProjectApplicationTests 
+2026-10-19 10:16:19.822 [INFO] [null] [pid:null] [main] [N/A] v.s.s.ShopeeProjectApplicationTests - Starting ShopeeProjectApplicationTests using Java 21.0.5 with PID 34712 (started by AndreyS in D:\shopee-project) 
+2026-10-19 10:16:19.822 [DEBUG] [null] [pid:null] [main] [N/A] v.s.s.ShopeeProjectApplicationTests - Running with Spring Boot v3.2.4, Spring v6.1.5 
+2026-10-19 10:16:19.822 [INFO] [null] [pid:null] [main] [N/A] v.s.s.ShopeeProjectApplicationTests - No active profile set, falling back to 1 default profile: "default" 
+2026-10-19 10:16:21.687 [INFO] [null] [pid:null] [main] [N/A] o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode. 
+2026-10-19 10:16:21.715 [INFO] [null] [pid:null] [main] [N/A] o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 28 ms. Found 1 JPA repository interface. 
+2026-10-19 10:16:22.768 [INFO] [null] [pid:null] [main] [N/A] org.flywaydb.core.FlywayExecutor - Database: jdbc:postgresql://localhost:58161/test (PostgreSQL 16.15) 
+2026-10-19 10:16:22.779 [WARN] [null] [pid:null] [main] [N/A] o.f.c.i.database.base.Database - Flyway upgrade recommended: PostgreSQL 16.15 is newer than this version of Flyway and support has not been tested. The latest supported version of PostgreSQL is 15. 
+2026-10-19 10:16:22.803 [INFO] [null] [pid:null] [main] [N/A] o.f.c.i.s.JdbcTableSchemaHistory - Schema history table "public"."flyway_schema_history" does not exist yet 
+2026-10-19 10:16:22.805 [INFO] [null] [pid:null] [main] [N/A] o.f.core.internal.command.DbValidate - Successfully validated 4 migrations (execution time 00:00.016s) 
+2026-10-19 10:16:22.828 [INFO] [null] [pid:null] [main] [N/A] o.f.c.i.s.JdbcTableSchemaHistory - Creating Schema History table "public"."flyway_schema_history" ... 
+2026-10-19 10:16:22.885 [INFO] [null] [pid:null] [main] [N/A] o.f.core.internal.command.DbMigrate - Current version of schema "public": << Empty Schema >> 
+2026-10-19 10:16:22.895 [INFO] [null] [pid:null] [main] [N/A] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "1 - create orders table" 
+2026-10-19 10:16:22.940 [INFO] [null] [pid:null] [main] [N/A] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "2 - create order items table" 
+2026-10-19 10:16:22.977 [INFO] [null] [pid:null] [main] [N/A] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "3 - add orders indexes" 
+2026-10-19 10:16:23.019 [INFO] [null] [pid:null] [main] [N/A] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "4 - add orders cancelled at" 
+2026-10-19 10:16:23.042 [INFO] [null] [pid:null] [main] [N/A] o.f.core.internal.command.DbMigrate - Successfully applied 4 migrations to schema "public", now at version v4 (execution time 00:00.066s) 
+2026-10-19 10:16:23.166 [INFO] [null] [pid:null] [main] [N/A] o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default] 
+2026-10-19 10:16:23.185 [INFO] [null] [pid:null] [main] [N/A] o.h.c.i.RegionFactoryInitiator - HHH000026: Second-level cache disabled 
+2026-10-19 10:16:23.197 [INFO] [null] [pid:null] [main] [N/A] o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer 
+2026-10-19 10:16:23.199 [INFO] [null] [pid:null] [main] [N/A] com.zaxxer.hikari.HikariDataSource - HikariPool-2 - Starting... 
+2026-10-19 10:16:23.258 [INFO] [null] [pid:null] [main] [N/A] com.zaxxer.hikari.pool.HikariPool - HikariPool-2 - Added connection org.postgresql.jdbc.PgConnection@257a59c 
+2026-10-19 10:16:23.259 [INFO] [null] [pid:null] [main] [N/A] com.zaxxer.hikari.HikariDataSource - HikariPool-2 - Start completed. 
+2026-10-19 10:16:23.391 [INFO] [null] [pid:null] [main] [N/A] o.h.e.t.j.p.i.JtaPlatformInitiator - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration) 
+2026-10-19 10:16:23.430 [INFO] [null] [pid:null] [main] [N/A] o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default' 
+2026-10-19 10:16:28.263 [INFO] [null] [pid:null] [main] [N/A] v.s.s.ShopeeProjectApplicationTests - Started ShopeeProjectApplicationTests in 8.547 seconds (process running for 46.435) 
+2026-10-19 10:16:29.142 [INFO] [null] [pid:null] [SpringApplicationShutdownHook] [N/A] o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default' 
+2026-10-19 10:16:29.145 [INFO] [null] [pid:null] [SpringApplicationShutdownHook] [N/A] com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated... 
+2026-10-19 10:16:29.154 [INFO] [null] [pid:null] [SpringApplicationShutdownHook] [N/A] com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed. 
+2026-10-19 10:16:29.167 [INFO] [null] [pid:null] [SpringApplicationShutdownHook] [N/A] o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default' 
+2026-10-19 10:16:29.168 [INFO] [null] [pid:null] [SpringApplicationShutdownHook] [N/A] com.zaxxer.hikari.HikariDataSource - HikariPool-2 - Shutdown initiated... 
+2026-10-19 10:16:29.174 [INFO] [null] [pid:null] [SpringApplicationShutdownHook] [N/A] com.zaxxer.hikari.HikariDataSource - HikariPool-2 - Shutdown completed. 

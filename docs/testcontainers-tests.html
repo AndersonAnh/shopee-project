@@ -1,0 +1,1202 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Тесты в проекте Shopee</title>
+<style>
+  :root {
+    --ink: #1c1915;
+    --body: #3a342c;
+    --muted: #6b6258;
+    --line: #e4dccf;
+    --paper: #f6f1e8;
+    --card: #fffdf9;
+    --yellow: #ffe86d;
+    --yellow-ink: #4a3d00;
+    --yellow-line: #a28e26;
+    --blue: #b7e8ff;
+    --blue-ink: #123646;
+    --blue-line: #2c97bb;
+    --green: #d4f0a4;
+    --green-ink: #24380c;
+    --green-line: #5d8a22;
+    --rose: #ffd6c8;
+    --rose-ink: #5c2416;
+    --rose-line: #c46b4a;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--paper); color: var(--ink); font: 18px/1.6 "Segoe UI", sans-serif; }
+  main { max-width: 980px; margin: 0 auto; padding: 36px 20px 96px; }
+  h1 { font-size: 40px; line-height: 1.15; margin: 0 0 12px; letter-spacing: -0.02em; }
+  h2 { font-size: 30px; line-height: 1.2; margin: 56px 0 12px; }
+  h3 { font-size: 20px; margin: 22px 0 6px; }
+  p, li { color: var(--body); }
+  .lead { font-size: 21px; }
+  a { color: #1d5c78; }
+  nav { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 14px 18px; margin: 22px 0 8px; }
+  nav .map { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 28px; }
+  nav strong { display: block; margin-top: 10px; }
+  nav ol { margin: 4px 0 8px; padding-left: 22px; }
+  nav li { margin: 2px 0; }
+  @media (max-width: 760px) { nav .map { grid-template-columns: 1fr; } }
+  .say { background: var(--card); border-left: 6px solid var(--yellow-line); padding: 14px 16px; margin: 16px 0; border-radius: 0 12px 12px 0; }
+  .say b { display: block; font-size: 12px; letter-spacing: 0.06em; color: var(--muted); margin-bottom: 4px; }
+  .easy { background: #fff8dc; border: 1px solid var(--yellow-line); border-radius: 12px; padding: 10px 14px; margin: 10px 0 14px; }
+  .easy b { color: var(--yellow-ink); }
+  code, .mono { font-family: Consolas, "Cascadia Mono", monospace; font-size: 0.9em; }
+  pre { background: #241f1a; color: #f6efe4; border-radius: 14px; padding: 14px 16px; overflow: auto; font-size: 15px; line-height: 1.45; }
+  pre code { color: inherit; }
+  .cap { color: var(--muted); font-size: 15px; margin: 4px 0 18px; }
+  .flow { display: flex; flex-direction: column; align-items: center; margin: 16px 0 4px; }
+  .node {
+    width: min(100%, 640px);
+    border: 3px solid var(--yellow-line);
+    background: var(--yellow);
+    color: var(--yellow-ink);
+    border-radius: 16px;
+    padding: 14px 18px;
+    text-align: center;
+  }
+  .node strong { display: block; font-size: 20px; }
+  .node span { display: block; font-size: 15px; font-weight: 500; margin-top: 4px; }
+  .node.term { background: var(--green); color: var(--green-ink); border-color: var(--green-line); border-radius: 999px; }
+  .node.blue { background: var(--blue); color: var(--blue-ink); border-color: var(--blue-line); }
+  .node.rose { background: var(--rose); color: var(--rose-ink); border-color: var(--rose-line); }
+  .arrow { font-size: 26px; color: #7a7268; line-height: 1; margin: 2px 0; }
+  .row { display: flex; gap: 12px; width: min(100%, 820px); justify-content: center; flex-wrap: wrap; }
+  .row .node { width: 240px; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+  @media (max-width: 760px) { .grid, .grid3 { grid-template-columns: 1fr; } }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px; }
+  .card h3 { margin-top: 0; }
+  table { width: 100%; border-collapse: collapse; background: var(--card); margin: 10px 0 6px; }
+  th, td { border: 1px solid var(--line); padding: 8px 10px; text-align: left; vertical-align: top; font-size: 16px; }
+  th { background: #fff4b8; }
+  ol.steps > li { margin: 14px 0; }
+  .time { display: flex; gap: 8px; flex-wrap: wrap; margin: 12px 0; }
+  .time div { flex: 1 1 140px; background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 10px; }
+  .time strong { display: block; font-size: 13px; color: var(--muted); }
+</style>
+</head>
+<body>
+<main>
+  <h1>Тесты в проекте Shopee</h1>
+  <p class="lead">Жёлтая плашка в начале раздела — смысл обычными словами. Под ней то же самое уже на классах проекта. Сначала теория и словарь, потом виды, как писать новый тест, Testcontainers и разбор всех 16 методов.</p>
+
+  <nav>
+    <div class="map">
+      <div>
+        <strong>Общая теория</strong>
+        <ol>
+          <li><a href="#theory">С чего начать</a></li>
+          <li><a href="#theory-shape">Подготовка, действие, следствие</a></li>
+          <li><a href="#theory-layers">Слои заказа</a></li>
+          <li><a href="#theory-flow">Ход createOrder</a></li>
+          <li><a href="#theory-cancel">Две отмены</a></li>
+          <li><a href="#theory-trace">Сильный и слабый след</a></li>
+          <li><a href="#choose">Какой тест писать</a></li>
+          <li><a href="#kind-pure">Чистый класс</a></li>
+          <li><a href="#kind-unit">Mockito</a></li>
+          <li><a href="#kind-mvc">Срез контроллера</a></li>
+          <li><a href="#kind-http">Повторы HTTP</a></li>
+          <li><a href="#kind-jpa">Срез репозитория</a></li>
+          <li><a href="#kind-context">contextLoads</a></li>
+          <li><a href="#kind-it">Интеграционный с брокером</a></li>
+          <li><a href="#kind-smoke">Проверка старта</a></li>
+          <li><a href="#kind-e2e">Сквозной</a></li>
+          <li><a href="#skeleton-pure">Каркасы для копирования</a></li>
+          <li><a href="#java-catalog">Куда класть следующий класс</a></li>
+          <li><a href="#write">Как писать следующий тест</a></li>
+          <li><a href="#write-example">Пример: товара нет</a></li>
+          <li><a href="#write-check">Чеклист перед сдачей</a></li>
+          <li><a href="#java">JUnit, Mockito и Spring</a></li>
+        </ol>
+        <strong>Testcontainers</strong>
+        <ol>
+          <li><a href="#tc">Библиотека и Ryuk</a></li>
+          <li><a href="#tc-h2">Почему не H2 и не compose</a></li>
+          <li><a href="#tc-addr">Два адреса</a></li>
+          <li><a href="#tc-life">Static, лямбда, сроки</a></li>
+          <li><a href="#tc-wait">Готовность</a></li>
+          <li><a href="#tc-net">Сеть и два брокера</a></li>
+          <li><a href="#run">Команды и поломки</a></li>
+        </ol>
+      </div>
+      <div>
+        <strong>Каждый тест в репозитории</strong>
+        <ol>
+          <li><a href="#t-validator">OrderValidatorTest</a></li>
+          <li><a href="#t-service">OrderServiceTest</a></li>
+          <li><a href="#t-retry">WarehouseClientResilienceTest</a></li>
+          <li><a href="#t-repo">OrderRepositoryTest</a></li>
+          <li><a href="#t-context">Два contextLoads</a></li>
+          <li><a href="#t-smoke">KafkaContainerSmokeTest</a></li>
+          <li><a href="#t-kafka">OrderServiceKafkaIT</a></li>
+          <li><a href="#t-e2e">FullInteractionE2ETest</a>
+            <ol>
+              <li><a href="#e2e-start">Старт и стоп</a></li>
+              <li><a href="#e2e-db">Две базы</a></li>
+              <li><a href="#e2e-flags">Флаги сервисов</a></li>
+              <li><a href="#e2e-kafka">Брокер KRaft</a></li>
+              <li><a href="#e2e-class">Класс теста и JDBC</a></li>
+            </ol>
+          </li>
+          <li><a href="#gaps">Что ещё не закрыто</a></li>
+        </ol>
+        <strong>Собеседование</strong>
+        <ol>
+          <li><a href="#iv-levels">Мидл и сеньор</a></li>
+          <li><a href="#iv-pyramid">Пирамида</a></li>
+          <li><a href="#iv-doubles">Пять подмен</a></li>
+          <li><a href="#iv-mid">Вопросы по видам</a></li>
+          <li><a href="#iv-tc">Рассказ про Testcontainers</a></li>
+          <li><a href="#iv-spring">Кеш контекста</a></li>
+          <li><a href="#iv-kafka">Kafka в тесте</a></li>
+          <li><a href="#iv-flake">Нестабильный тест</a></li>
+          <li><a href="#iv-story">Рассказ на две минуты</a></li>
+          <li><a href="#iv-bank">Банк вопросов</a></li>
+        </ol>
+      </div>
+    </div>
+  </nav>
+
+  <h2 id="theory">Общая теория тестов на этом проекте</h2>
+  <div class="easy"><b>Простыми словами.</b> Тест — это один вопрос к коду. Сначала готовят ситуацию, потом вызывают один метод, потом смотрят, что изменилось. Если смотреть не на то, что изменилось, а на заготовку, которую тест сам подложил, тест зелёный и ничего не доказал.</div>
+  <p>Слова, которые дальше встречаются постоянно:</p>
+  <table>
+    <tr><th>Слово</th><th>Что оно значит здесь</th></tr>
+    <tr><td>След</td><td>То, что появилось из-за вызова: исключение, строка в базе, сообщение в Kafka, код HTTP, число на складе</td></tr>
+    <tr><td>Мок</td><td>Поддельный сосед. Тест заранее говорит, что он вернёт, и потом проверяет, позвали ли его</td></tr>
+    <tr><td>Фикстура</td><td>Готовый объект из <span class="mono">TestUtil</span>. Сравнивать тест с собственной фикстурой — всё равно что сверять шпаргалку саму с собой</td></tr>
+    <tr><td>Срез</td><td>Поднимают один слой Spring. Остальное не стартует. Срез базы — только JPA. Срез контроллера — только HTTP</td></tr>
+    <tr><td>Сквозной</td><td>Оба сервиса настоящие, в Docker. Тест снаружи шлёт HTTP и сам читает базы</td></tr>
+    <tr><td>Лямбда <span class="mono">postgres::getJdbcUrl</span></td><td>«Спроси адрес потом». В момент записи настройки контейнер ещё не запущен, порта ещё нет</td></tr>
+  </table>
+
+  <h3 id="theory-shape">Подготовка, действие, следствие</h3>
+  <div class="easy"><b>Простыми словами.</b> Сначала ставят декорации. Потом делают один ход. Потом смотрят на результат этого хода, а не на декорации.</div>
+  <p>У метода с <span class="mono">@Test</span> всегда три части.</p>
+  <p>Подготовка — это вход. Статус на заготовке заказа. Ответ, который мок должен вернуть. Строка товара в таблице склада.</p>
+  <p>Действие — один вызов. <span class="mono">canCancel</span>, <span class="mono">createOrder</span>, <span class="mono">checkStock</span> или POST на <span class="mono">/api/orders</span>. Два разных вопроса в одном методе потом невозможно разобрать: непонятно, какой из них сломался.</p>
+  <p>Следствие читают у того, кто его сделал. Валидатор сделал исключение — смотрят исключение. Сервис позвал продюсера — смотрят, сколько раз позвал. База сохранила строку — читают строку. Склад изменил остаток — читают остаток.</p>
+  <div class="flow">
+    <div class="node"><strong>Подготовка</strong><span>статус, when, INSERT остатка, контейнер уже жив</span></div>
+    <div class="arrow">↓ одно действие</div>
+    <div class="node blue"><strong>Вызов</strong><span>валидатор, сервис, клиент склада, репозиторий или HTTP</span></div>
+    <div class="arrow">↓</div>
+    <div class="node term"><strong>Следствие</strong><span>исключение, verify, строка, запись в топике, код HTTP, число на складе</span></div>
+  </div>
+  <p>Пустой <span class="mono">contextLoads</span> и проверка <span class="mono">isRunning()</span> говорят только одно: процесс включился. Заказ они не создают.</p>
+  <p><span class="mono">assertNotNull</span> на объекте, который тест сам положил в мок, проверяет заготовку. Рядом нужен <span class="mono">verify</span>: кого сервис позвал и сколько раз.</p>
+  <p>Где читать следствие в уже написанных тестах. В модульном — возврат сервиса и <span class="mono">verify</span>. В интеграционном — строка в Postgres и своя запись из Kafka. В сквозном — код HTTP, число в таблице склада и строка в логе слушателя.</p>
+  <p>JUnit запускает методы в любом порядке. Это нормально, пока методы не портят общий стенд. Сквозной тест портит: третий метод выключает склад. Поэтому у него стоят <span class="mono">@TestMethodOrder</span> и <span class="mono">@Order</span>. В остальных классах порядок не задают. Чужие строки не видны, потому что срез откатывает транзакцию, а сквозные методы берут новый UUID товара.</p>
+
+  <h3 id="theory-layers">Слои заказа и кто их проверяет</h3>
+  <div class="easy"><b>Простыми словами.</b> Заказ проходит несколько комнат. В каждой может сломаться своё. Поэтому «создать заказ» проверяют несколькими маленькими тестами, а не одним гигантским.</div>
+  <p>Снаружи приходит HTTP. Контроллер проверяет JSON и ставит код ответа. Сервис решает ветку: товар есть, товара нет, склад молчит. Клиент склада ходит по HTTP и повторяет ошибку. Репозиторий пишет строку. Продюсер кладёт сообщение в Kafka. Слушатель склада это сообщение читает и меняет остаток. До слушателя живым процессом доходит только сквозной тест.</p>
+  <div class="flow">
+    <div class="node"><strong>HTTP</strong><span>OrderController, @Valid, ControllerUtil, GlobalExceptionHandler</span></div>
+    <div class="arrow">↓</div>
+    <div class="node blue"><strong>OrderService.createOrder</strong><span>валидация полей, маппер, сумма, цикл по позициям</span></div>
+    <div class="arrow">↓</div>
+    <div class="row">
+      <div class="node"><strong>WarehouseClient</strong><span>retry и circuit breaker</span></div>
+      <div class="node"><strong>OrderRepository</strong><span>Postgres, Flyway</span></div>
+      <div class="node"><strong>OrderEventProducer</strong><span>четыре топика</span></div>
+    </div>
+    <div class="arrow">↓ только сквозной тест доходит сюда живым процессом</div>
+    <div class="node term"><strong>warehouse-service</strong><span>остаток, резерв, слушатель Kafka</span></div>
+  </div>
+  <table>
+    <tr><th>Слой</th><th>Что решает</th><th>Где это уже доказано</th></tr>
+    <tr><td><span class="mono">OrderValidator.canCancel</span></td><td>DELIVERED и CANCELLED отменять нельзя</td><td><a href="#t-validator">три метода</a>, Spring нет</td></tr>
+    <tr><td><span class="mono">OrderService</span> и его вызовы</td><td>кого позвать на создании и на смене статуса</td><td><a href="#t-service">Mockito</a>. Сумму и SQL не доказывает</td></tr>
+    <tr><td><span class="mono">OrderMapper</span></td><td>новый заказ CREATED, доставка через 3 дня, <span class="mono">cancelledAt</span> при <span class="mono">updateEntity</span></td><td>отдельного теста нет. В модульном тесте маппер — мок</td></tr>
+    <tr><td><span class="mono">WarehouseClient</span></td><td>три попытки на 500, один запрос на 404</td><td><a href="#t-retry">фальшивый сервер</a></td></tr>
+    <tr><td><span class="mono">OrderRepository</span></td><td>сохранение и список без CANCELLED</td><td><a href="#t-repo">Postgres 16</a></td></tr>
+    <tr><td>Сервис целиком и брокер</td><td>строка CONFIRMED и запись в <span class="mono">order.confirmed</span></td><td><a href="#t-kafka">Kafka IT</a>, склад — мок</td></tr>
+    <tr><td>Два процесса</td><td>остаток 100 стал 97 и 3, нулевой остаток, мёртвый склад</td><td><a href="#t-e2e">три сквозных метода</a></td></tr>
+    <tr><td>Контроллер и коды</td><td>201, 202, 400, 404, 409, 503, 500</td><td>класса среза ещё нет. Сквозной видит только 201 и 202</td></tr>
+  </table>
+
+  <h3 id="theory-flow">Ход createOrder</h3>
+  <div class="easy"><b>Простыми словами.</b> Сервис сначала проверяет, что заявка заполнена. Потом считает деньги. Потом по каждому товару спрашивает склад. От ответа склада зависят статус заказа и топик Kafka.</div>
+  <p><span class="mono">validateCreateOrder</span> смотрит, что в запросе есть покупатель, позиции и адрес. Маппер ставит статус CREATED. <span class="mono">assembleOrder</span> умножает цену на количество по каждой позиции и ставит доставку через 3 дня. Число 3 — константа <span class="mono">DELIVERY_DAYS</span> в сервисе. После этого начинается цикл по позициям. На каждой позиции сначала <span class="mono">checkStock</span>.</p>
+  <div class="flow">
+    <div class="node"><strong>checkStock</strong><span>HTTP на склад, внутри три попытки</span></div>
+    <div class="arrow">↓</div>
+    <div class="row">
+      <div class="node rose"><strong>WarehouseUnavailableException</strong><span>handleWarehouseError<br>статус CREATED<br>топик order.pending-review</span></div>
+      <div class="node"><strong>available = false</strong><span>handleOutOfStock<br>статус WAITING_STOCK<br>топик order.waiting-stock<br>reserve не вызывается</span></div>
+      <div class="node term"><strong>available = true</strong><span>reserveStock<br>если все позиции прошли — CONFIRMED<br>save один раз<br>по событию на позицию</span></div>
+    </div>
+  </div>
+  <p>Три исхода на схеме — это три разных вопроса. Их не смешивают в один метод.</p>
+  <p>Склад бросил ошибку после повторов. Сервис сохраняет заказ как CREATED и пишет в топик <span class="mono">order.pending-review</span>. Резерва нет.</p>
+  <p>Склад ответил, и флаг <span class="mono">available</span> ложный. Сервис сохраняет WAITING_STOCK и пишет в <span class="mono">order.waiting-stock</span>. <span class="mono">reserveStock</span> не вызывается. Проверка <span class="mono">processStockResponse</span> на этом пути смотрит только, что ответ не пустой. Пустой ответ и <span class="mono">available = false</span> бросают <span class="mono">StockReserveResponseException</span> уже на резерве и на освобождении резерва, не на проверке остатка.</p>
+  <p>Склад сказал, что товар есть. Сервис резервирует позицию. Если так прошли все позиции, статус становится CONFIRMED, <span class="mono">save</span> вызывается один раз, и на каждую позицию уходит своё событие в <span class="mono">order.confirmed</span>.</p>
+  <p>Дыра цикла. Если первая позиция уже зарезервирована, а во второй товара нет, метод всё равно возвращает WAITING_STOCK и первый резерв не снимает. Теста на это нет. Его пишут на Mockito: у первой позиции available истина, у второй ложь, <span class="mono">reserveStock</span> ровно один раз, <span class="mono">releaseStock</span> ни разу.</p>
+  <p>Код HTTP ставит контроллер, не сервис. CONFIRMED и CREATED — это 201. WAITING_STOCK — это 202. Другой статус — 400. Поэтому сквозной тест на живой товар ждёт 201, на нулевой остаток — 202, на выключенный склад — снова 201, но в теле статус CREATED.</p>
+  <table>
+    <tr><th>Ветка</th><th>Кто её доказывает сейчас</th><th>Чего в доказательстве нет</th></tr>
+    <tr><td>Обе позиции есть, CONFIRMED, два события</td><td>Mockito считает вызовы. Kafka IT пишет 19.98 и одну запись на одну позицию. Сквозной меняет 100 на 97 и 3</td><td>модульный тест сумму не считает: наружу уходит фикстура 199.99</td></tr>
+    <tr><td>Товара нет</td><td>только сквозной: HTTP 202, статус в базе, лог <span class="mono">[order.waiting-stock]</span>, резерв остался 0</td><td>нет <span class="mono">verify(never()).reserveStock</span> и нет своего потребителя топика</td></tr>
+    <tr><td>Склад недоступен</td><td>клиент: три 500 становятся <span class="mono">WarehouseUnavailableException</span>. Сквозной: процесс склада убит, заказ CREATED, остаток не тронут</td><td>тело <span class="mono">order.pending-review</span> никто не читает. Открытие предохранителя не проверяют: порог в тесте 100 вызовов, в бою 5</td></tr>
+    <tr><td>Первая позиция зарезервирована, вторая нет</td><td>нет теста</td><td>резерв первой позиции останется висеть</td></tr>
+  </table>
+
+  <h3 id="theory-cancel">Две двери отмены</h3>
+  <div class="easy"><b>Простыми словами.</b> Отменить заказ можно двумя методами. Они делают разное. Зелёный тест на один не означает, что второй работает.</div>
+  <div class="grid">
+    <div class="card">
+      <h3>updateStatus</h3>
+      <p>Принимает только CANCELLED, иначе <span class="mono">NoSuchStatusException</span>. Зовет <span class="mono">canCancel</span>. Если статус был CONFIRMED, снимает резерв через <span class="mono">releaseStock</span>. Маппер ставит <span class="mono">cancelledAt</span>. Потом <span class="mono">save</span> и <span class="mono">sendOrderCancelled</span> с reason.</p>
+    </div>
+    <div class="card">
+      <h3>cancelOrder</h3>
+      <p>Находит заказ. Если он уже CANCELLED, бросает <span class="mono">InvalidOrderStatusException</span>. Иначе ставит CANCELLED и делает <span class="mono">save</span>. Валидатор, склад и Kafka не вызываются.</p>
+    </div>
+  </div>
+  <p>Уже написанный <span class="mono">shouldUpdateStatus</span> легко прочитать неправильно.</p>
+  <p>В <span class="mono">findById</span> передают id товара из фикстуры, не id заказа. Мок на <span class="mono">any()</span> всё равно отдаёт заготовку со статусом CREATED. Резерв снимается только у CONFIRMED, поэтому <span class="mono">releaseStock</span> здесь не вызывается.</p>
+  <p>Тест проверяет три вызова: <span class="mono">canCancel</span>, <span class="mono">updateEntity</span>, <span class="mono">save</span>. Ответ, который он сравнивает, снова фикстура со статусом CONFIRMED. То есть наружу смотрят не на отмену, а на заготовку.</p>
+  <p>Продюсер в этом прогоне всё же получает <span class="mono">sendOrderCancelled</span>. В <span class="mono">verify</span> этого вызова нет, поэтому тест его не стережёт. Отдельного теста на <span class="mono">cancelOrder</span> нет.</p>
+
+  <h3 id="theory-trace">Какой след считать достаточным</h3>
+  <table>
+    <tr><th>След</th><th>Пример в проекте</th><th>Что он закрывает</th></tr>
+    <tr><td>Тип исключения</td><td><span class="mono">CannotCancelException</span> на DELIVERED</td><td>правило валидатора</td></tr>
+    <tr><td><span class="mono">verify</span> с числом и аргументом</td><td>два <span class="mono">sendOrderConfirmed</span></td><td>оркестрацию сервиса</td></tr>
+    <tr><td>Число HTTP и тип причины</td><td>три 500, внутри <span class="mono">HttpServerErrorException</span></td><td>политику клиента</td></tr>
+    <tr><td>Строка после <span class="mono">flush</span> и <span class="mono">clear</span></td><td>статус CONFIRMED и тот же customerId</td><td>SQL репозитория</td></tr>
+    <tr><td>Ключ и JSON в топике</td><td>ключ равен id, <span class="mono">"quantity":2</span></td><td>публикацию своего процесса</td></tr>
+    <tr><td>Число в чужой таблице</td><td>available 97, reserved 3</td><td>договор двух сервисов</td></tr>
+    <tr><td>Подстрока лога</td><td><span class="mono">[order.confirmed]</span></td><td>что слушатель вообще проснулся. Товар в подстроке не виден</td></tr>
+    <tr><td>Пустой метод или <span class="mono">isRunning()</span></td><td>два <span class="mono">contextLoads</span> и проверка старта Kafka</td><td>что контекст или контейнер включились</td></tr>
+  </table>
+  <div class="say">
+    <b>КАК ЧИТАТЬ ДАЛЬШЕ</b>
+    Таблица видов и каркасы — чтобы написать новый тест. Лекция про Testcontainers — когда след живёт в Docker. Разбор девяти классов — что уже написано, метод за методом. Собеседование в конце собирает это в ответы, факты оттуда не выкинуты.
+  </div>
+
+  <h2 id="choose">Какой тест писать</h2>
+  <p>Техзадание говорит, что должно произойти: заказ нельзя отменить дважды, строка появляется в Postgres, сообщение доходит до склада, контроллер отдаёт 202. Тест пишут под этот след. Вид теста — это ответ на вопрос, кто этот след производит. Соседа, чей след в этом тесте не читают, подменяют.</p>
+  <div class="flow">
+    <div class="node"><strong>1. След</strong><span>исключение, вызов соседа, строка, запись в топике, код HTTP, число в чужой таблице</span></div>
+    <div class="arrow">↓</div>
+    <div class="node blue"><strong>2. Кто его производит</strong><span>один класс, бин Spring, Postgres, Kafka, второй сервис</span></div>
+    <div class="arrow">↓</div>
+    <div class="node term"><strong>3. Вид</strong><span>настоящим оставляют только производителя. Остальное — подмена</span></div>
+  </div>
+  <table>
+    <tr><th>След</th><th>Вид</th><th>Что живое</th><th>Класс в проекте</th><th>Запуск</th></tr>
+    <tr><td>Ветка по полям объекта</td><td>чистый класс, <span class="mono">new</span></td><td>только этот объект</td><td><a href="#t-validator">OrderValidatorTest</a></td><td><span class="mono">mvn test</span></td></tr>
+    <tr><td>Сервис зовёт нужных соседей</td><td>Mockito</td><td>один сервис</td><td><a href="#t-service">OrderServiceTest</a></td><td><span class="mono">mvn test</span></td></tr>
+    <tr><td>Путь, JSON, <span class="mono">@Valid</span>, код ответа</td><td><span class="mono">@WebMvcTest</span> и MockMvc</td><td>веб-слой</td><td>класса ещё нет, каркас ниже</td><td><span class="mono">mvn test</span></td></tr>
+    <tr><td>Сколько раз клиент ходит и какое исключение отдаёт</td><td><span class="mono">MockRestServiceServer</span></td><td>узкий Spring</td><td><a href="#t-retry">WarehouseClientResilienceTest</a></td><td><span class="mono">mvn test</span></td></tr>
+    <tr><td>SQL на настоящей схеме</td><td><span class="mono">@DataJpaTest</span> и Postgres</td><td>JPA и Flyway</td><td><a href="#t-repo">OrderRepositoryTest</a></td><td><span class="mono">mvn test</span></td></tr>
+    <tr><td>Приложение собирается</td><td>пустой <span class="mono">contextLoads</span></td><td>контекст</td><td><a href="#t-context">два таких класса</a></td><td><span class="mono">mvn test</span></td></tr>
+    <tr><td>Свой сервис пишет в базу и брокер</td><td><span class="mono">@SpringBootTest</span> и два контейнера</td><td>Postgres, Kafka, сервис. Склад — мок</td><td><a href="#t-kafka">OrderServiceKafkaIT</a></td><td><span class="mono">mvn test</span></td></tr>
+    <tr><td>Образ вообще стартовал</td><td>контейнер без Spring, проверка <span class="mono">isRunning()</span></td><td>один процесс</td><td><a href="#t-smoke">KafkaContainerSmokeTest</a></td><td><span class="mono">mvn test</span></td></tr>
+    <tr><td>Два процесса договорились</td><td>сквозной, HTTP снаружи</td><td>оба jar, две базы, брокер</td><td><a href="#t-e2e">FullInteractionE2ETest</a></td><td><span class="mono">mvn verify -Pe2e</span></td></tr>
+  </table>
+  <p>Имя файла в этом репозитории решает, кто его запустит. <span class="mono">*Test.java</span> и <span class="mono">*IT.java</span> идут в Surefire на <span class="mono">mvn test</span>. <span class="mono">*E2ETest.java</span> Surefire исключает. Профиль <span class="mono">e2e</span> отдаёт его failsafe. У failsafe шаблон по умолчанию — <span class="mono">*IT.java</span>, поэтому в профиле явно указан <span class="mono">**/*E2ETest.java</span>. Без этой строки сквозной класс молча не запустится. В PowerShell несколько имён через запятую берут в кавычки: <span class="mono">"-Dtest=OrderServiceTest,OrderValidatorTest"</span>.</p>
+  <p>Доказательство читает следствие у того, кто его произвёл. <span class="mono">assertNotNull</span> на ответе, который тест сам подложил в мок, доказывает только заготовку. Рядом нужен <span class="mono">verify</span>: сколько раз и с каким аргументом вызван сосед. Строка после <span class="mono">flush</span> и <span class="mono">clear</span>, запись отдельного потребителя Kafka, код живого HTTP и числа в чужой таблице — сильные следы. Подстрока в логе и пустой <span class="mono">contextLoads</span> доказывают только то, что процесс включился.</p>
+  <div class="say">
+    <b>ПРОВЕРКА ВЫБОРА</b>
+    Уберите Docker. Если утверждение всё ещё может упасть по делу, контейнер был лишним. Если тест зелёный при выключенном соседе, а вопрос был про этого соседа, след смотрят не там.
+  </div>
+
+  <h3 id="kind-pure">Чистый класс</h3>
+  <div class="easy"><b>Простыми словами.</b> <span class="mono">new OrderValidator()</span> и вызов метода. Соседей нет. Так проверяют правило «при таком статусе брось исключение».</div>
+  <p>Успех — нужный тип исключения или тихое завершение. В проекте это <a href="#t-validator">OrderValidatorTest</a>. DELIVERED и уже CANCELLED дают <span class="mono">CannotCancelException</span>. CONFIRMED проходит. CREATED и WAITING_STOCK валидатор тоже пропускает, отдельные методы их пока не подают.</p>
+  <p>Этим тестом не доказывают, что заказ сохранился, резерв снялся или ушло сообщение. Валидатор смотрит только статус. Каркас — <a href="#skeleton-pure">ниже</a>.</p>
+
+  <h3 id="kind-unit">Mockito</h3>
+  <div class="easy"><b>Простыми словами.</b> Настоящий только сервис. Склад, база и Kafka — подделки. Тест говорит подделкам, что ответить, вызывает сервис и проверяет, кого он позвал.</div>
+  <p>Spring здесь нет, поэтому повторы склада и настоящий маппер не работают. Перед вызовом на каждый метод по пути пишут <span class="mono">when</span>. Если забыть, мок вернёт null, и сервис упадёт раньше сценария.</p>
+  <p>Смотрят две вещи: что сервис вернул и <span class="mono">verify</span>. Ответ, который тест сам положил в мок, доказательством не является.</p>
+  <p>В <span class="mono">shouldCreateOrder</span> сумма 75.48 считается на заготовке, а наружу тест сравнивает фикстуру 199.99. Два вызова продюсера совпадают с двумя позициями. Строки в Postgres нет. Разбор — в <a href="#t-service">OrderServiceTest</a>. Каркас — <a href="#skeleton-unit">ниже</a>.</p>
+
+  <h3 id="kind-mvc">Срез контроллера</h3>
+  <div class="easy"><b>Простыми словами.</b> Проверяют, какой код HTTP вышел на такой JSON. База не поднимается. Сервис — мок. Запрос идёт через MockMvc, как через настоящий контроллер, но без порта.</div>
+  <p>Прямой вызов <span class="mono">controller.createOrder</span> этот слой пропускает: <span class="mono">@Valid</span> и обработчик ошибок не бегут. Класса в репозитории ещё нет, каркас — в <a href="#skeleton-mvc">срезе</a>.</p>
+  <p>Коды. CONFIRMED и CREATED — 201. WAITING_STOCK — 202. Нет заказа — 404. Чужой статус — 400. Отмена доставленного — 409. Склад после повторов — 503. Всё остальное — 500.</p>
+  <p>Подмена бина в Boot 3.2.4 пишется <span class="mono">@MockBean</span>. Имя <span class="mono">@MockitoBean</span> появилось в 3.4 и здесь не скомпилируется. Путь <span class="mono">/api/orders</span> объявлен на интерфейсе <span class="mono">OrderApi</span>. Если MockMvc отвечает 404, сначала проверяют, видит ли срез этот интерфейс.</p>
+
+  <h3 id="kind-http">Повторы HTTP</h3>
+  <div class="easy"><b>Простыми словами.</b> Настоящий клиент склада ходит в фальшивый сервер в той же программе. Docker нет. Считают, сколько раз он сходил и какое исключение вышло наружу.</div>
+  <p><span class="mono">expect(times(3))</span> разрешает ровно три запроса. <span class="mono">server.verify()</span> падает, если запросов было другое число. Повторяют таймаут, обрыв соединения и ответ 500. Ответ 404 не повторяют: один запрос и сразу <span class="mono">NotFound</span>.</p>
+  <p>В бою предохранитель открывается после 5 ошибок. В тестовом профиле порог — 100 вызовов, пауза 10 мс. Три ответа 500 поэтому проверяют повтор, а не «предохранитель открыт». Разбор — в <a href="#t-retry">тесте клиента</a>.</p>
+
+  <h3 id="kind-jpa">Срез репозитория</h3>
+  <div class="easy"><b>Простыми словами.</b> Проверяют SQL на настоящем Postgres. Сервис и Kafka не стартуют. После метода строки откатываются, контейнер остаётся тот же.</div>
+  <p><span class="mono">@DataJpaTest</span> сам подменил бы базу на встроенную и выключил бы Flyway. Поэтому рядом стоят <span class="mono">Replace.NONE</span> и импорт Flyway. Адрес контейнера отдаёт <span class="mono">@ServiceConnection</span>.</p>
+  <p>Перед чтением вызывают <span class="mono">flush</span> и <span class="mono">clear</span>. Иначе Hibernate отдаст объект из памяти, и тест будет зелёным при сломанном SQL. H2 миграции проекта не выполняет: там <span class="mono">gen_random_uuid()</span>, <span class="mono">NUMERIC(19,4)</span> и <span class="mono">COMMENT ON</span>. Два метода — в <a href="#t-repo">OrderRepositoryTest</a>.</p>
+
+  <h3 id="kind-context">Пустой contextLoads</h3>
+  <div class="easy"><b>Простыми словами.</b> Метод пустой. Успех — приложение просто запустилось. Заказ никто не создаёт.</div>
+  <p>У заказов тест сам поднимает Postgres. Flyway накатывает V1–V4, Hibernate сверяет таблицы. Kafka в настройках остаётся <span class="mono">localhost:9092</span>, но продюсер создаётся лениво и в этом методе не вызывается. Локальная Kafka не нужна.</p>
+  <p>У склада своего контейнера нет. Контекст идёт на уже запущенные <span class="mono">localhost:5433</span> и <span class="mono">localhost:9092</span>. Если compose не поднят, метод даже не начнётся. Подробности — в <a href="#t-context">двух классах</a>.</p>
+
+  <h3 id="kind-it">Интеграционный тест своего процесса</h3>
+  <div class="easy"><b>Простыми словами.</b> Сервис заказов настоящий, база настоящая, Kafka настоящая. Склад поддельный. После создания заказа смотрят строку в базе и сообщение в топике.</div>
+  <p>Контейнеры статические: один Postgres и одна Kafka на весь класс. Адрес в Spring попадает лямбдой, потому что порт появляется только после старта. Четыре топика создают бинами, у каждого одна партиция.</p>
+  <p>Свой потребитель читает топик: новая группа, читать с начала, ждать до 10 секунд. Транзакцию на метод не вешают. Откат сотрёт строку заказа, а сообщение в Kafka уже уйдёт. В проекте один такой метод: 2×9.99 = 19.98. Разбор — в <a href="#t-kafka">OrderServiceKafkaIT</a>.</p>
+  <p>Библиотека встроенного брокера <span class="mono">spring-kafka-test</span> в pom есть и в тестах не используется. Она жила бы в той же программе и не проверила бы настоящий брокер.</p>
+
+  <h3 id="kind-smoke">Проверка, что контейнер включился</h3>
+  <div class="easy"><b>Простыми словами.</b> Запустили Kafka в Docker и спросили «процесс жив?». Заказ не пишут. Топик не создают.</div>
+  <p>В проекте это <a href="#t-smoke">KafkaContainerSmokeTest</a>, образ 7.6.1, успех — <span class="mono">isRunning()</span>. По-английски это называют smoke test: включил прибор и смотришь, не пошёл ли дым.</p>
+  <p>Рабочий тест с сервисом сидит на образе 7.4.4. Зелёная проверка старта на 7.6.1 не повод менять образ: настройки брокера между версиями расходятся. Задачу «заказ создаётся» этим тестом не закрывают.</p>
+
+  <h3 id="kind-e2e">Сквозной тест двух процессов</h3>
+  <div class="easy"><b>Простыми словами.</b> Заказы и склад — две отдельные программы в Docker. Тест снаружи шлёт HTTP и сам читает обе базы. Spring в тесте не поднимается.</div>
+  <p>Образы <span class="mono">shopee-project:e2e</span> и <span class="mono">warehouse-service:e2e</span> тест не собирает. Их собирают заранее. Команда запуска — <span class="mono">mvn verify -Pe2e</span>. Обычный <span class="mono">mvn test</span> этот класс пропускает: имя файла кончается на <span class="mono">E2ETest</span>.</p>
+  <p>В одной сети пять контейнеров: две базы, брокер, склад, заказы. Сервисы ходят друг к другу по именам вроде <span class="mono">warehouse:8081</span>. Тест с компьютера ходит на случайный порт. Три метода на одном стенде. Третий выключает склад, поэтому он последний. Шаги — в <a href="#t-e2e">FullInteractionE2ETest</a>.</p>
+
+  <h3 id="skeleton-pure">Каркас чистого класса</h3>
+  <p>Метод смотрит на поля и либо бросает исключение, либо возвращает значение. Соседей нет. Один метод — одно правило. Имя метода говорит правило: <span class="mono">canCancel_rejectsDeliveredOrder</span>.</p>
+  <div class="flow">
+    <div class="node"><strong>Order со статусом</strong><span>статус ставят руками на заготовке</span></div>
+    <div class="arrow">↓ canCancel</div>
+    <div class="row">
+      <div class="node rose"><strong>DELIVERED</strong><span>CannotCancelException</span></div>
+      <div class="node rose"><strong>CANCELLED</strong><span>CannotCancelException</span></div>
+      <div class="node term"><strong>CONFIRMED</strong><span>исключения нет</span></div>
+    </div>
+  </div>
+  <p class="cap">Розовый исход — отказ. Зелёный — метод завершился. Базы и Spring на схеме нет: их в этом виде не поднимают.</p>
+  <pre><code>class OrderValidatorTest {
+    private final OrderValidator orderValidator = new OrderValidator();
+
+    @Test
+    void canCancel_rejectsDeliveredOrder() {
+        Order order = TestUtil.getOrder();
+        order.setOrderStatus(OrderStatus.DELIVERED);
+        assertThrows(CannotCancelException.class, () -&gt; orderValidator.canCancel(order));
+    }
+}</code></pre>
+
+  <h3 id="skeleton-unit">Каркас Mockito</h3>
+  <p><span class="mono">@ExtendWith(MockitoExtension.class)</span> создаёт <span class="mono">@Mock</span> и собирает настоящий сервис в <span class="mono">@InjectMocks</span>. Spring нет, повторы склада не исполняются. Перед вызовом пишут <span class="mono">when</span> на каждый метод, до которого сервис дойдёт. Забытый <span class="mono">when</span> возвращает null, и сервис падает с <span class="mono">NullPointerException</span> до сценария.</p>
+  <div class="flow">
+    <div class="node"><strong>when</strong><span>моку говорят, что вернуть</span></div>
+    <div class="arrow">↓</div>
+    <div class="node blue"><strong>вызов сервиса</strong><span>один метод, одно правило</span></div>
+    <div class="arrow">↓</div>
+    <div class="row">
+      <div class="node term"><strong>результат</strong><span>то, что сервис вернул</span></div>
+      <div class="node term"><strong>verify</strong><span>кого вызвал и сколько раз</span></div>
+    </div>
+  </div>
+  <p class="cap">Зелёные блоки — то, что тест имеет право утверждать. Ответ мока, который тест сам подложил, сам по себе доказательством не является.</p>
+  <pre><code>@ExtendWith(MockitoExtension.class)
+class OrderServiceTest {
+    @Mock WarehouseClient warehouseClient;
+    @Mock OrderRepository orderRepository;
+    @InjectMocks OrderService orderService;
+
+    @Test
+    void outOfStockDoesNotReserve() {
+        when(warehouseClient.checkStock(any(), anyInt())).thenReturn(responseWith(false));
+        orderService.createOrder(requestFor(1));
+        verify(warehouseClient, never()).reserveStock(any(), anyInt());
+        verify(orderRepository).save(argThat(order -&gt;
+                order.getOrderStatus() == OrderStatus.WAITING_STOCK));
+    }
+}</code></pre>
+  <p><span class="mono">any()</span> значит «этот аргумент нам всё равно». <span class="mono">eq</span> и <span class="mono">argThat</span> значат «вот это значение важно». Если один аргумент уже записан как <span class="mono">any()</span>, остальные в том же вызове тоже пишут матчерами, голый объект рядом не ставят.</p>
+  <p><span class="mono">ArgumentCaptor</span> забирает объект, который сервис передал в мок, когда проверить нужно несколько полей. Для метода без возврата пишут <span class="mono">doThrow(...).when(мок).метод()</span>. <span class="mono">@Spy</span> в проекте нет: шпион вызывает настоящий метод, а зависимости внутри ещё null.</p>
+
+  <h3 id="skeleton-mvc">Каркас среза контроллера</h3>
+  <p>Прямой вызов <span class="mono">controller.createOrder</span> не прогоняет <span class="mono">@Valid</span>, JSON и <span class="mono">GlobalExceptionHandler</span>. Это делает MockMvc. В проекте Spring Boot 3.2.4, бин подменяют <span class="mono">@MockBean</span>. Имя <span class="mono">@MockitoBean</span> появилось в Boot 3.4 и здесь не скомпилируется. Путь <span class="mono">/api/orders</span> объявлен на интерфейсе <span class="mono">OrderApi</span>. Если MockMvc отвечает 404, первым делом проверяют, видит ли срез этот интерфейс.</p>
+  <div class="flow">
+    <div class="node"><strong>MockMvc шлёт JSON</strong><span>сокет не открывается, порт не нужен</span></div>
+    <div class="arrow">↓</div>
+    <div class="row">
+      <div class="node rose"><strong>@Valid не прошёл</strong><span>400 INVALID_ORDER<br>сервис не вызван</span></div>
+      <div class="node blue"><strong>сервис-мок ответил</strong><span>ControllerUtil ставит код</span></div>
+      <div class="node rose"><strong>сервис бросил</strong><span>GlobalExceptionHandler</span></div>
+    </div>
+    <div class="arrow">↓ коды из обработчика и ControllerUtil</div>
+    <div class="row">
+      <div class="node term"><strong>201</strong><span>CONFIRMED и CREATED</span></div>
+      <div class="node term"><strong>202</strong><span>WAITING_STOCK</span></div>
+      <div class="node"><strong>404 / 409 / 503 / 500</strong><span>нет заказа, нельзя отменить, склад, всё остальное</span></div>
+    </div>
+  </div>
+  <p class="cap">Чужой статус заказа даёт 400 с кодом NO_SUCH_STATUS. Кривой JSON — 400 INVALID_ORDER. Отмена доставленного — 409 CANNOT_CANCEL. Склад после повторов — 503 WAREHOUSE_UNAVAILABLE. Непойманное исключение — 500 INTERNAL_ERROR.</p>
+  <pre><code>@WebMvcTest(OrderController.class)
+class OrderControllerTest {
+    @Autowired MockMvc mvc;
+    @MockBean OrderService orderService;
+
+    @Test
+    void waitingStockIsAccepted() throws Exception {
+        when(orderService.createOrder(any())).thenReturn(responseWithStatus("WAITING_STOCK"));
+        mvc.perform(post("/api/orders").contentType(MediaType.APPLICATION_JSON).content(json))
+            .andExpect(status().isAccepted())
+            .andExpect(jsonPath("$.status").value("WAITING_STOCK"));
+    }
+}</code></pre>
+
+  <h3 id="skeleton-http">Каркас повторов HTTP</h3>
+  <p><span class="mono">MockRestServiceServer</span> перехватывает <span class="mono">RestTemplate</span> в той же JVM. <span class="mono">expect(times(n))</span> разрешает ровно n запросов. <span class="mono">server.verify()</span> падает, если запросов было другое число. В боевом yaml предохранитель склада открывается после 5 вызовов при доле ошибок 50%. В профиле <span class="mono">warehouse-client</span> свойство <span class="mono">minimum-number-of-calls</span> равно 100, поэтому три ответа 500 проверяют повтор, а не состояние open. Пауза там 10 мс, в бою — 2 секунды и множитель 2. Код 4xx в список повторов не входит.</p>
+  <div class="flow">
+    <div class="row">
+      <div class="node rose"><strong>три ответа 500</strong><span>expect(times(3))</span></div>
+      <div class="node rose"><strong>один ответ 404</strong><span>второй запрос запрещён</span></div>
+    </div>
+    <div class="arrow">↓ один и тот же checkStock</div>
+    <div class="row">
+      <div class="node term"><strong>WarehouseUnavailableException</strong><span>внутри HttpServerErrorException</span></div>
+      <div class="node term"><strong>NotFound сразу</strong><span>4xx не повторяют</span></div>
+    </div>
+  </div>
+  <p class="cap">Предохранитель на этой схеме не открывается: до ста вызовов тест не доходит.</p>
+
+  <h3 id="java-catalog">Куда класть следующий класс</h3>
+  <table>
+    <tr><th>Пришло в задании</th><th>Куда</th><th>Что оставить настоящим</th></tr>
+    <tr><td>Новый запрет в валидаторе</td><td>метод в <span class="mono">OrderValidatorTest</span> или строка <span class="mono">@EnumSource</span></td><td>только валидатор</td></tr>
+    <tr><td>Новая ветка сервиса</td><td>метод в <span class="mono">OrderServiceTest</span></td><td>сервис. Соседи — моки. Проверяют <span class="mono">verify</span> и объект, ушедший в <span class="mono">save</span></td></tr>
+    <tr><td>Поле маппера, сумма, доставка плюс 3 дня</td><td>новый тест на <span class="mono">Mappers.getMapper(OrderMapper.class)</span></td><td>сгенерированный маппер. В модульном тесте сервиса маппер замокан и поля не проверяет</td></tr>
+    <tr><td>Код HTTP и тело ошибки</td><td>новый <span class="mono">OrderControllerTest</span></td><td>контроллер и <span class="mono">GlobalExceptionHandler</span></td></tr>
+    <tr><td>Число повторов, новый код склада, открытие предохранителя</td><td>метод в <span class="mono">WarehouseClientResilienceTest</span></td><td>клиент и фальшивый сервер. Для состояния open порог опускают до числа реальных вызовов</td></tr>
+    <tr><td>Новый запрос репозитория</td><td>метод в <span class="mono">OrderRepositoryTest</span></td><td>Postgres, Flyway, <span class="mono">flush</span> и <span class="mono">clear</span></td></tr>
+    <tr><td>Событие дошло до брокера, ключ, JSON, сумма в базе</td><td>метод в <span class="mono">OrderServiceKafkaIT</span></td><td>Postgres, Kafka, сервис. Склад — мок. Потребитель фильтрует запись по id</td></tr>
+    <tr><td>Слушатель склада меняет остаток</td><td>тест в модуле склада</td><td>потребитель и <span class="mono">product_stock</span>. Сервис заказов не поднимают</td></tr>
+    <tr><td>Оба сервиса и настоящий остаток</td><td>метод в <span class="mono">FullInteractionE2ETest</span></td><td>пять контейнеров. После правки Java образы <span class="mono">:e2e</span> собирают заново. Метод, который гасит контейнер, идёт последним</td></tr>
+  </table>
+  <p>Одно изменение раскладывают по слоям, а не копируют один assert везде. Отмена подтверждённого заказа в коде идёт через <span class="mono">updateStatus</span>: <span class="mono">canCancel</span>, для статуса <span class="mono">CONFIRMED</span> — <span class="mono">releaseStock</span>, затем <span class="mono">sendOrderCancelled</span>. Метод <span class="mono">cancelOrder</span> только ставит <span class="mono">CANCELLED</span> и делает <span class="mono">save</span>. Валидатор, склад и Kafka он не трогает. Тест про резерв пишут на <span class="mono">updateStatus</span>. Тест на <span class="mono">cancelOrder</span> проверяет узкое правило: повторная отмена даёт <span class="mono">InvalidOrderStatusException</span>.</p>
+  <div class="flow">
+    <div class="node"><strong>Валидатор</strong><span>уже есть. DELIVERED и CANCELLED бросают CannotCancelException</span></div>
+    <div class="arrow">↓</div>
+    <div class="node"><strong>Сервис, Mockito</strong><span>verify releaseStock и каптор OrderCancelledEvent. Сейчас shouldUpdateStatus этого не делает</span></div>
+    <div class="arrow">↓</div>
+    <div class="node blue"><strong>MockMvc</strong><span>успех 200, CannotCancelException становится 409 и code CANNOT_CANCEL. Класса ещё нет</span></div>
+    <div class="arrow">↓</div>
+    <div class="node blue"><strong>Kafka IT</strong><span>строка CANCELLED и одна запись в order.cancelled с reason. Метода ещё нет</span></div>
+    <div class="arrow">↓</div>
+    <div class="node term"><strong>Сквозной</strong><span>только когда надо увидеть, что reserved на складе уменьшился. Сейчас три метода покрывают создание</span></div>
+  </div>
+
+  <h2 id="write">Как писать следующий тест</h2>
+  <div class="easy"><b>Простыми словами.</b> Задание переводят в одну фразу «что должно измениться». По этой фразе выбирают уже существующий класс. Копируют соседний метод, меняют вход и одну проверку, запускают только этот класс.</div>
+  <h3 id="write-steps">Шесть шагов</h3>
+  <ol class="steps">
+    <li>Одной фразой запишите следствие. «Метод бросает CannotCancelException». «В orders статус WAITING_STOCK». «Склад ответил три раза 500, наружу вышло WarehouseUnavailableException». «POST с пустым items даёт 400, сервис не вызван». «available стало 97, reserved стало 3».</li>
+    <li>Найдите производителя в <a href="#choose">таблице видов</a>. Если производитель — валидатор, открывайте <span class="mono">OrderValidatorTest</span>. Если сервис и его вызовы — <span class="mono">OrderServiceTest</span>. Если код HTTP — новый <span class="mono">OrderControllerTest</span> по <a href="#skeleton-mvc">каркасу среза</a>. Если число попыток клиента — <span class="mono">WarehouseClientResilienceTest</span>. Если SQL — <span class="mono">OrderRepositoryTest</span>. Если строка и сообщение своего сервиса — <span class="mono">OrderServiceKafkaIT</span>. Если число в таблице склада — <span class="mono">FullInteractionE2ETest</span>.</li>
+    <li>Прочитайте метод продакшена, который это следствие создаёт, и выпишите, кого он зовёт до возврата. Для Mockito каждый такой вызов получает <span class="mono">when</span> до действия. Вызов, которого на этой ветке быть не должно, <span class="mono">when</span> не получает: иначе тест спрячет лишний поход.</li>
+    <li>Скопируйте ближайший метод того же класса. Поменяйте вход и одно утверждение. Имя метода говорит правило: <span class="mono">createOrder_whenSecondItemMissing_doesNotReleaseFirstReserve</span>. Один метод — одно правило. Второе правило — второй метод.</li>
+    <li>Запустите один класс. Обычный: <span class="mono">mvn test -Dtest=ИмяКласса</span>. В PowerShell несколько имён берут в кавычки. Сквозной после правки Java: <span class="mono">mvn -DskipTests package</span>, затем <span class="mono">docker build</span> обоих тегов <span class="mono">:e2e</span>, затем <span class="mono">mvn verify -Pe2e</span>. Команды собраны в <a href="#run">разделе запуска</a>.</li>
+    <li>Прочитайте, на чём тест стал зелёным. Если утверждение сравнивает объект, который тест сам положил в мок, след смотрят не там. Для суммы заказа нужен настоящий маппер, как в <a href="#t-kafka">Kafka IT</a>. Для остатка на складе нужен второй процесс, как в <a href="#t-e2e">сквозном тесте</a>.</li>
+  </ol>
+
+  <h3 id="write-example">Пример: «товара нет, reserve не вызывается»</h3>
+  <div class="easy"><b>Простыми словами.</b> Склад-подделка отвечает «товара нет». Сервис должен сохранить WAITING_STOCK и не вызвать резерв. Базу и Docker для этого не поднимают.</div>
+  <p>По коду <span class="mono">createOrder</span> до ветки «товара нет» сервис успевает вызвать <span class="mono">toOrder</span>, <span class="mono">checkStock</span> и, если флаг available ложный, <span class="mono">save</span> и <span class="mono">toOrderResponse</span> внутри <span class="mono">handleOutOfStock</span>. <span class="mono">reserveStock</span> на этой ветке не стоит. Значит <span class="mono">when</span> на reserve не пишут.</p>
+  <pre><code>@Test
+void createOrder_whenStockMissing_doesNotReserve() {
+    OrderRequest request = TestUtil.getOrderRequest();
+    Order order = TestUtil.getOrder();
+    when(dtoMapper.toOrder(request)).thenReturn(order);
+    when(warehouseClient.checkStock(any(), any()))
+            .thenReturn(StockCheckResponse.builder()
+                    .available(false)
+                    .availableQuantity(0)
+                    .status("OUT_OF_STOCK")
+                    .build());
+    when(orderRepository.save(any())).thenAnswer(invocation -&gt; invocation.getArgument(0));
+    when(dtoMapper.toOrderResponse(any())).thenAnswer(invocation -&gt; {
+        Order saved = invocation.getArgument(0);
+        return OrderResponse.builder()
+                .orderId(saved.getId())
+                .status(saved.getOrderStatus().name())
+                .totalAmount(saved.getTotalAmount())
+                .build();
+    });
+
+    OrderResponse response = orderService.createOrder(request);
+
+    assertThat(response.status()).isEqualTo("WAITING_STOCK");
+    verify(warehouseClient, never()).reserveStock(any(), any());
+    verify(orderRepository).save(argThat(saved -&gt;
+            saved.getOrderStatus() == OrderStatus.WAITING_STOCK));
+}</code></pre>
+  <p>Ответ маппера здесь собирается из заказа, который сервис сам изменил. Поэтому статус WAITING_STOCK в ответе — след сервиса, а не число 199.99 из <span class="mono">getOrderResponse</span>. <span class="mono">thenAnswer</span> на <span class="mono">save</span> возвращает тот же объект: так видно, какой статус ушёл в репозиторий. <span class="mono">never()</span> падает, если цикл всё-таки вызвал резерв.</p>
+  <p>Этот метод не доказывает, что склад правда уменьшил бы остаток и что в топике <span class="mono">order.waiting-stock</span> лежит JSON. Первое уже смотрит сквозной тест. Второе добавляют потребителем в <span class="mono">OrderServiceKafkaIT</span>, если задание требует тело события.</p>
+
+  <h3 id="write-check">Чеклист перед тем как считать тест готовым</h3>
+  <table>
+    <tr><th>Вопрос к себе</th><th>Если ответ «нет»</th></tr>
+    <tr><td>В имени метода слышно правило?</td><td>Переименовать. <span class="mono">test1</span> через месяц не читается</td></tr>
+    <tr><td>Действие в методе одно?</td><td>Второе правило вынести в соседний метод</td></tr>
+    <tr><td>На каждый вызов до следствия есть <span class="mono">when</span>, если сосед — мок?</td><td>Иначе придёт null и упадёт NPE раньше сценария</td></tr>
+    <tr><td>Утверждение читает следствие производителя, а не свою заготовку?</td><td>Заменить сравнение фикстуры на <span class="mono">verify</span>, строку после <span class="mono">clear</span>, ключ в топике или число в чужой таблице</td></tr>
+    <tr><td>Для Postgres перед чтением есть <span class="mono">flush</span> и <span class="mono">clear</span>?</td><td>Иначе SELECT может взять объект из сессии Hibernate</td></tr>
+    <tr><td>Для Kafka группа новая и смещение <span class="mono">earliest</span>?</td><td>Старая группа на втором прогоне увидит «уже прочитано»</td></tr>
+    <tr><td>Контейнер рядом со Spring статический, адрес передан лямбдой или <span class="mono">@ServiceConnection</span>?</td><td>Второй метод останется на старом порту</td></tr>
+    <tr><td>Сквозной метод, который останавливает контейнер, идёт последним?</td><td>Следующий сценарий «склад жив» уже не поднять на этом стенде</td></tr>
+    <tr><td>После правки Java образы <span class="mono">:e2e</span> пересобраны, если запускается сквозной класс?</td><td>Иначе 400 и 500 придут из старого jar внутри образа</td></tr>
+  </table>
+  <div class="say">
+    <b>КАК ПОЛЬЗОВАТЬСЯ ЭТИМ ДАЛЬШЕ</b>
+    На новое задание пройдите шесть шагов и чеклист. Готовый класс в репозитории открывайте как образец того же вида, не как текст, который надо скопировать целиком вместе с чужим статусом. Если вид неочевиден, начните с таблицы в разделе «Какой тест писать».
+  </div>
+
+  <h2 id="java">Приёмы JUnit, Mockito и Spring</h2>
+  <p>Любой тест — метод с <span class="mono">@Test</span>. Внутри три части: подготовка, одно действие, проверка следствия. JUnit не обещает порядок методов. Его включают только если один метод портит общий стенд: <span class="mono">@TestMethodOrder(OrderAnnotation.class)</span> и <span class="mono">@Order</span>. Так сделан сквозной тест, потому что третий метод гасит склад.</p>
+  <div class="time">
+    <div><strong>@BeforeAll</strong>один раз. Сквозной тест здесь вызывает <span class="mono">E2EStack.start()</span>. Метод статический, если нет <span class="mono">@TestInstance(PER_CLASS)</span></div>
+    <div><strong>@BeforeEach</strong>перед каждым методом. Тест клиента здесь привязывает <span class="mono">MockRestServiceServer</span></div>
+    <div><strong>@AfterAll</strong>после всех. Сквозной тест здесь вызывает <span class="mono">stack.stop()</span></div>
+  </div>
+  <p>По умолчанию JUnit создаёт новый объект теста на каждый метод. Поля, заполненные в одном методе, в другом пустые. <span class="mono">@ParameterizedTest</span> и <span class="mono">@EnumSource</span> сжимают много входов одного правила в одну таблицу. Для валидатора это статусы <span class="mono">DELIVERED</span> и <span class="mono">CANCELLED</span> в одном методе на отказ и <span class="mono">CONFIRMED</span>, <span class="mono">CREATED</span>, <span class="mono">WAITING_STOCK</span> в методе на разрешение. Сейчас это три отдельных метода, параметризации нет. <span class="mono">@Nested</span> группирует методы внутренним классом. На три метода валидатора он только добавляет отступ.</p>
+  <p>Новые проверки пишут на AssertJ: цепочка читается слева направо, и <span class="mono">as("body: %s", body)</span> печатает тело, если код HTTP не совпал. <span class="mono">BigDecimal</span> сравнивают через <span class="mono">isEqualByComparingTo</span>: <span class="mono">equals</span> учитывает масштаб, и 19.98 с 19.9800 для него разные. Исключение и его причину смотрят так: <span class="mono">assertThatThrownBy(() -&gt; ...).isInstanceOf(...).hasCauseInstanceOf(...)</span>. Старые классы сервиса и валидатора ещё вызывают <span class="mono">assertEquals</span> и <span class="mono">assertThrows</span>. Смысл тот же.</p>
+  <p>В Spring-тесте мок бина — <span class="mono">@MockBean</span>. Обычный <span class="mono">@Mock</span> Spring не увидит: поднимется настоящий клиент и пойдёт по адресу из yaml. <span class="mono">@MockBean</span> меняет ключ кеша контекста. Spring собирает контекст один раз на набор аннотаций, профилей, свойств и моков и держит его до конца JVM. Два класса с одним ключом делят бины и тот адрес базы, который попал в <span class="mono">DataSource</span> при первой сборке. <span class="mono">@DirtiesContext</span> выбрасывает кеш. Это медленно, в проекте так не делают.</p>
+  <table>
+    <tr><th>Аннотация</th><th>Что поднимает в этом проекте</th></tr>
+    <tr><td><span class="mono">@DataJpaTest</span></td><td>только JPA. Сам подменяет базу и выключает Flyway, поэтому рядом стоят <span class="mono">Replace.NONE</span> и <span class="mono">@ImportAutoConfiguration(FlywayAutoConfiguration.class)</span>. Каждый метод в транзакции и откатывается</td></tr>
+    <tr><td><span class="mono">@WebMvcTest</span></td><td>контроллер, JSON, advice. Сервис — мок</td></tr>
+    <tr><td><span class="mono">@SpringBootTest</span></td><td>все бины. <span class="mono">webEnvironment = NONE</span> не открывает порт: так сделан тест клиента. Режим <span class="mono">MOCK</span> отдаёт запросы в MockMvc. <span class="mono">RANDOM_PORT</span> поднимает Tomcat. В проекте живой порт оставлен сквозному тесту, не <span class="mono">TestRestTemplate</span></td></tr>
+    <tr><td><span class="mono">@DynamicPropertySource</span></td><td>кладёт в контекст значение, которое появится после старта контейнера. В реестр передают лямбду, не заранее вычисленную строку</td></tr>
+    <tr><td><span class="mono">@ActiveProfiles</span></td><td>другой yaml. Тоже часть ключа кеша. Тест клиента включает профиль <span class="mono">warehouse-client</span></td></tr>
+  </table>
+  <p><span class="mono">@DataJpaTest</span> откатывает вставки. <span class="mono">@SpringBootTest</span> этого не делает: строка и сообщение Kafka после метода остаются. Аннотацию <span class="mono">@Transactional</span> на интеграционный тест с брокером не вешают. Откат заберёт строку в конце метода, а сообщение уйдёт сразу. В топике окажется событие заказа, которого в таблице уже нет. Изоляция там — свой id и потребитель, который ищет запись с этим id.</p>
+  <p><span class="mono">flush</span> отправляет INSERT сейчас. <span class="mono">clear</span> выбрасывает объекты из памяти Hibernate. <span class="mono">findById</span> после этого идёт в Postgres. Без <span class="mono">clear</span> чтение может взять объект из сессии, и тест останется зелёным при сломанном SQL.</p>
+  <div class="flow">
+    <div class="node"><strong>save в сессии Hibernate</strong><span>объект ещё может жить только в памяти</span></div>
+    <div class="arrow">↓ flush</div>
+    <div class="node blue"><strong>INSERT ушёл в Postgres</strong><span>строка уже на диске</span></div>
+    <div class="arrow">↓ clear</div>
+    <div class="node term"><strong>findById читает диск</strong><span>сессия пустая, подсмотреть негде</span></div>
+  </div>
+  <div class="flow">
+    <div class="node"><strong>@SpringBootTest сохранил заказ и послал Kafka</strong></div>
+    <div class="arrow">↓ если на метод повесить @Transactional</div>
+    <div class="row">
+      <div class="node rose"><strong>откат базы</strong><span>строки заказа уже нет</span></div>
+      <div class="node term"><strong>сообщение осталось</strong><span>брокер откат не видит</span></div>
+    </div>
+  </div>
+  <p class="cap">Правая схема — почему интеграционный тест с брокером не оборачивают в транзакцию. Получится событие без заказа.</p>
+  <p>След, который появляется после ответа, ждут условием, а не <span class="mono">Thread.sleep</span>. Awaitility вызывает проверку снова, пока она не пройдёт или не кончится срок. В сквозном тесте лог слушателя ждут до 15 секунд: резерв к моменту HTTP уже записан, строка в логе — нет, и консоль ещё идёт через асинхронный appender.</p>
+  <pre><code>await().atMost(15, TimeUnit.SECONDS).untilAsserted(() -&gt;
+        assertThat(stack.warehouseLogs()).contains("[order.confirmed]"));</code></pre>
+  <p>Общие заготовки лежат в <span class="mono">TestUtil</span>. Поле, на котором держится правило, задают в самом методе. Идентификатор, по которому потом ищут след, генерируют в методе: <span class="mono">UUID.randomUUID()</span>. Константный id допустим только там, где базы нет: в тесте клиента склада товар один и тот же.</p>
+
+  <h2 id="tc">Testcontainers</h2>
+  <div class="easy"><b>Простыми словами.</b> Мок подменяет соседа внутри программы. Testcontainers поднимает настоящего соседа в Docker: базу или Kafka. После класса контейнер удаляют, следующий запуск начинает с пустой базы.</div>
+  <p>Библиотека из теста говорит с Docker: скачивает образ, создаёт контейнер, ждёт, пока он готов, отдаёт адрес и в конце удаляет контейнер. Руками <span class="mono">docker run</span> писать не нужно.</p>
+  <div class="flow">
+    <div class="node term"><strong>Тестовый класс</strong><span>поле @Container или ручной start()</span></div>
+    <div class="arrow">↓</div>
+    <div class="node"><strong>модуль junit-jupiter</strong><span>расширение вызывает start до тестов и stop после класса</span></div>
+    <div class="arrow">↓</div>
+    <div class="node"><strong>postgres, kafka или GenericContainer</strong><span>образ, порт, пользователь, фраза готовности</span></div>
+    <div class="arrow">↓</div>
+    <div class="node"><strong>ядро</strong><span>клиент Docker API и проброс порта. В pom отдельной строкой нет: его привозят модули</span></div>
+    <div class="arrow">↓</div>
+    <div class="node"><strong>Ryuk</strong><span>если JVM умерла и не вызвала stop, уборщик снимает контейнеры прогона по меткам</span></div>
+    <div class="arrow">↓</div>
+    <div class="node term"><strong>Docker Desktop</strong><span>на Windows сокет npipe://./pipe/docker_engine. Выключенный демон падает до первого @Test</span></div>
+  </div>
+  <p>Версия модулей — BOM <span class="mono">testcontainers-bom 1.20.1</span>. Рядом в pom лежит <span class="mono">spring-kafka-test</span>. В тестах он не используется: встроенный брокер жил бы в той же JVM и не проверил бы настоящий протокол. <span class="mono">spring-boot-testcontainers</span> нужен ради <span class="mono">@ServiceConnection</span>.</p>
+
+  <h3 id="tc-h2">Почему Postgres, а не H2 и не compose</h3>
+  <p>Миграции написаны под Postgres. Первая таблица содержит <span class="mono">gen_random_uuid()</span>, <span class="mono">NUMERIC(19, 4)</span> и <span class="mono">COMMENT ON</span>. Дальше индексы в V3 и колонка <span class="mono">cancelled_at</span> в V4. В yaml стоит <span class="mono">ddl-auto: validate</span>: Hibernate сверяет сущности с уже созданными таблицами. Таблицы создаёт Flyway. H2 этот SQL не выполнит, и зелёный тест ничего не скажет про стенд.</p>
+  <p><span class="mono">docker-compose.yaml</span> — ручной стенд с фиксированными портами и томами. Тесты на Testcontainers его не открывают. Единственный класс, который смотрит на уже запущенные 5433 и 9092, — пустой контекст склада. Для нового кода берут контейнер, который поднимает сам тест: порт свободен, данных прошлого вечера нет, CI не зависит от того, вспомнил ли кто-то сделать <span class="mono">compose up</span>.</p>
+  <div class="grid">
+    <div class="card">
+      <h3>Стенд из yaml</h3>
+      <p>База <span class="mono">shopee-project</span>, порт 5432, <span class="mono">admin</span> / <span class="mono">shopee</span>. Kafka на <span class="mono">localhost:9092</span>. Склад на <span class="mono">localhost:8081</span>.</p>
+    </div>
+    <div class="card">
+      <h3>Контейнер по умолчанию</h3>
+      <p><span class="mono">PostgreSQLContainer</span> на <span class="mono">postgres:16-alpine</span> создаёт базу <span class="mono">test</span>, пользователя <span class="mono">test</span>, пароль <span class="mono">test</span>. Имена со стендом совпадать не должны. Нужна та же СУБД и те же миграции. Порт снаружи случайный.</p>
+    </div>
+  </div>
+
+  <h3 id="tc-addr">Два адреса одной программы</h3>
+  <div class="easy"><b>Простыми словами.</b> Внутри контейнера порт всегда один и тот же, например 5432. Снаружи Docker выдаёт случайный порт. Тест на компьютере ходит на случайный. Соседний контейнер ходит на имя в сети и на внутренний 5432. <span class="mono">localhost</span> внутри контейнера — это он сам, не ваш компьютер.</div>
+  <p>Образ — файлы на диске, процесса ещё нет. Контейнер — уже запущенный процесс. Порт внутри постоянен: Postgres 5432, Kafka 9092, заказы 8080, склад 8081, их служебные порты здоровья — 8088 и 8098. Строку подключения нельзя записать в yaml заранее: наружного номера ещё нет.</p>
+  <div class="flow">
+    <div class="node"><strong>Процесс внутри</strong><span>слушает свой постоянный порт</span></div>
+    <div class="arrow">↓</div>
+    <div class="row">
+      <div class="node blue"><strong>JVM теста на машине</strong><span>localhost и случайный порт<br>getJdbcUrl, getBootstrapServers, getMappedPort</span></div>
+      <div class="node rose"><strong>Соседний контейнер</strong><span>псевдоним сети и внутренний порт<br>jdbc:postgresql://shopee-db:5432/...</span></div>
+    </div>
+  </div>
+  <p class="cap">localhost внутри контейнера — это он сам. Хост псевдоним сети не резолвит.</p>
+  <p><span class="mono">EXPOSE</span> в Dockerfile порт на хост не публикует. Публикация — <span class="mono">withExposedPorts</span> у <span class="mono">GenericContainer</span>. У готового <span class="mono">PostgreSQLContainer</span> публикация 5432 уже внутри класса.</p>
+
+  <h3 id="tc-life">Static, лямбда и три срока</h3>
+  <div class="easy"><b>Простыми словами.</b> Контейнер рядом со Spring объявляют static: один на весь класс. Адрес передают лямбдой, не строкой. Строка в момент объявления поля ещё пустая, контейнер не запущен. Spring спросит адрес сам, когда старт уже прошёл.</div>
+  <div class="time">
+    <div><strong>1</strong>JUnit видит static @Container. Порта ещё нет</div>
+    <div><strong>2</strong>start(). Образ, процесс, ожидание</div>
+    <div><strong>3</strong>Spring вызывает лямбду postgres::getJdbcUrl</div>
+    <div><strong>4</strong>Контекст запоминает этот адрес</div>
+    <div><strong>5</strong>Методы @Test</div>
+    <div><strong>6</strong>stop(), контейнер удаляется</div>
+  </div>
+  <p>Поле рядом со Spring статическое. Обычное поле на втором методе подняло бы новый порт, а бины остались бы на старом. Вызов <span class="mono">getJdbcUrl()</span> в момент объявления поля вернёт пустоту: <span class="mono">start()</span> ещё не вернулся. В реестр кладут ссылку на метод.</p>
+  <pre><code>@DynamicPropertySource
+static void props(DynamicPropertyRegistry registry) {
+    registry.add("spring.datasource.url", postgres::getJdbcUrl);
+    registry.add("spring.datasource.username", postgres::getUsername);
+    registry.add("spring.datasource.password", postgres::getPassword);
+    registry.add("spring.kafka.bootstrap-servers", kafka::getBootstrapServers);
+}</code></pre>
+  <p><span class="mono">KafkaProducerConfig</span> читает брокер через <span class="mono">@Value</span>. Константа <span class="mono">localhost:9092</span> в конфиге увела бы запись мимо контейнера. Для одного Postgres хватает <span class="mono">@ServiceConnection</span> на поле: Boot сам заполняет url, логин и пароль. Для <span class="mono">KafkaContainer</span> та же аннотация заполняет bootstrap. Ручной реестр в интеграционном тесте оставлен, потому что в одном месте видны все четыре ключа. Третий способ, <span class="mono">jdbc:tc:postgresql:16:///shop</span>, прячет контейнер в строке URL. В этом репозитории его нет: адрес всегда читается с явного поля. Четвёртый способ — для процесса, у которого нет Spring-теста: флаги <span class="mono">-D</span> в <span class="mono">JAVA_TOOL_OPTIONS</span>. Так устроен сквозной стенд.</p>
+  <table>
+    <tr><th>Срок</th><th>Как пишут</th><th>Когда</th></tr>
+    <tr><td>Класс</td><td><span class="mono">static @Container</span></td><td>все контейнеры проекта рядом со Spring. Данные между методами изолируют откатом, своим UUID или очисткой, а не новым контейнером</td></tr>
+    <tr><td>Метод</td><td>поле без <span class="mono">static</span></td><td>тест без Spring, методов мало, след нельзя стереть SQL. Со Spring контекст остаётся на старом порту</td></tr>
+    <tr><td>Вся JVM</td><td><span class="mono">static { container.start(); }</span> в базовом классе</td><td>десяток классов делят один Postgres. В репозитории так не сделано: открыл файл и видишь свою базу</td></tr>
+    <tr><td>Между прогонами</td><td><span class="mono">withReuse(true)</span> и строка <span class="mono">testcontainers.reuse.enable=true</span> в <span class="mono">~/.testcontainers.properties</span></td><td>ускоряет локальный цикл и оставляет вчерашние строки. В CI выключают</td></tr>
+  </table>
+  <p>Ручной <span class="mono">start()</span> пишут, когда порядок и общая сеть важнее аннотации. Так устроен <span class="mono">E2EStack</span>. Аннотация <span class="mono">@Testcontainers(disabledWithoutDocker = true)</span> при этом всё ещё полезна: без Docker класс пропускается. Полей <span class="mono">@Container</span> у сквозного теста нет.</p>
+
+  <h3 id="tc-wait">Готовность и настройки до старта</h3>
+  <p><span class="mono">start()</span> возвращается только после ожидания. Процесс может уже существовать, а порт ещё не слушать.</p>
+  <div class="flow">
+    <div class="node"><strong>Docker создал контейнер</strong><span>процесс есть, порт может быть закрыт</span></div>
+    <div class="arrow">↓ start() ждёт одно из этого</div>
+    <div class="row">
+      <div class="node"><strong>Лог дважды</strong><span>Postgres: ready, рестарт, ready снова</span></div>
+      <div class="node blue"><strong>Строка лога</strong><span>Kafka Server started</span></div>
+      <div class="node"><strong>HTTP 200</strong><span>actuator на внутреннем порту</span></div>
+    </div>
+    <div class="arrow">↓ только теперь</div>
+    <div class="node term"><strong>читать адрес</strong><span>getJdbcUrl, getBootstrapServers, getMappedPort</span></div>
+  </div>
+  <table>
+    <tr><th>Стратегия</th><th>Где в проекте</th><th>Где ошибётся</th></tr>
+    <tr><td>лог Postgres, два раза</td><td>внутри <span class="mono">PostgreSQLContainer</span>. Фраза «ready to accept connections»</td><td>процесс пишет её, перезапускается и пишет снова. Один раз — подключение в окно рестарта</td></tr>
+    <tr><td><span class="mono">getBootstrapServers()</span> после своего ожидания</td><td><span class="mono">KafkaContainer</span> на Confluent</td><td>адрес уже для хоста</td></tr>
+    <tr><td><span class="mono">Wait.forLogMessage</span> «Kafka Server started», 2 минуты</td><td>Apache Kafka 3.7.1 в сквозном тесте</td><td>у тега 3.7.0 первый формат хранилища мог записать неверный cluster id. Тег фиксируют, <span class="mono">CLUSTER_ID</span> задают явно</td></tr>
+    <tr><td><span class="mono">Wait.forHttp</span> код ровно 200</td><td>заказы, внутренний порт 8088; склад, внутренний порт 8098</td><td><span class="mono">forPort</span> — внутренний порт. 503 значит «процесс жив, брокер ещё нет», ждать надо дальше. На это дано 3 минуты</td></tr>
+  </table>
+  <p>Цепочка <span class="mono">withDatabaseName</span>, <span class="mono">withEnv</span>, <span class="mono">withExposedPorts</span>, <span class="mono">withNetwork</span>, <span class="mono">waitingFor</span> контейнер не запускает. Её пишут до <span class="mono">start()</span>. <span class="mono">withInitScript</span> в проекте не используют: схему создаёт Flyway. <span class="mono">dependsOn</span> поднимает зависимость раньше. В <span class="mono">E2EStack</span> тот же порядок записан явными вызовами <span class="mono">start()</span>, чтобы при падении посередине уже созданные контейнеры погасить в <span class="mono">catch</span>.</p>
+  <p>Чужой образ, который по сути Postgres, но называется иначе, подключают через <span class="mono">DockerImageName.parse("my/postgres:16").asCompatibleSubstituteFor("postgres")</span>. Без этой строки <span class="mono">PostgreSQLContainer</span> откажется стартовать.</p>
+
+  <h3 id="tc-net">Сеть и два брокера</h3>
+  <div class="flow">
+    <div class="node"><strong>Network одного прогона</strong><span>DNS-имена видны только контейнерам этой сети</span></div>
+    <div class="arrow">↓</div>
+    <div class="row">
+      <div class="node blue"><strong>Сервис внутри</strong><span>jdbc:postgresql://db:5432/...</span></div>
+      <div class="node term"><strong>Тест на машине</strong><span>getHost и getMappedPort</span></div>
+    </div>
+  </div>
+  <p class="cap">Если тест сеет данные сам, у базы два входа и один Postgres.</p>
+  <p>Псевдоним резолвится только внутри <span class="mono">Network</span>, который создал тест.</p>
+  <table>
+    <tr><th></th><th>Интеграционный и проверка старта</th><th>Сквозной стенд</th></tr>
+    <tr><td>Класс</td><td><span class="mono">KafkaContainer</span></td><td><span class="mono">GenericContainer</span></td></tr>
+    <tr><td>Образ</td><td>Confluent 7.4.4 в рабочем тесте, 7.6.1 в проверке старта</td><td>Apache Kafka 3.7.1, режим KRaft, без ZooKeeper</td></tr>
+    <tr><td>Адрес</td><td><span class="mono">getBootstrapServers()</span> на хост, потому что потребитель сидит в JVM теста</td><td><span class="mono">kafka:9092</span> только для контейнеров. Хост к брокеру не ходит</td></tr>
+    <tr><td>Топики</td><td>четыре бина <span class="mono">NewTopic</span>, одна партиция, фактор 1. Автосоздание на стенде выключено, от compose тест не зависит</td><td><span class="mono">AUTO_CREATE_TOPICS_ENABLE=true</span>, топик появляется на первой записи</td></tr>
+    <tr><td>Репликация служебных топиков</td><td>у модуля уже устроена под один узел</td><td>offsets и transaction state log явно равны 1. Иначе идемпотентный продюсер не поднимется: ему нужен transaction-топик</td></tr>
+  </table>
+  <p>Потребитель в интеграционном тесте — отдельный клиент, не бин приложения. Группа называется <span class="mono">test-</span> плюс новый UUID, смещение <span class="mono">earliest</span>, один <span class="mono">poll</span> на 10 секунд. Постоянная группа на втором прогоне увидела бы «уже прочитано». <span class="mono">latest</span> может пропустить запись, отправленную до <span class="mono">subscribe</span>. Первый poll сразу после <span class="mono">subscribe</span> часто уходит на вход в группу и возвращает пустой набор, даже если запись уже лежит в топике. Для второго метода в том же классе надёжнее ждать запись с нужным id, а не считать один poll достаточным навсегда. <span class="mono">@SpringBootTest</span> транзакцию не откатывает, и старые сообщения в топике остаются.</p>
+
+  <h3 id="run">Команды и поломки</h3>
+  <table>
+    <tr><th>Что нужно</th><th>Команда</th></tr>
+    <tr><td>Один обычный класс</td><td><span class="mono">mvn test -Dtest=ИмяКласса</span></td></tr>
+    <tr><td>Все, кроме сквозного</td><td><span class="mono">mvn test</span></td></tr>
+    <tr><td>Сквозной</td><td>сначала <span class="mono">mvn -DskipTests package</span> и <span class="mono">docker build -t shopee-project:e2e .</span>, то же для склада с тегом <span class="mono">warehouse-service:e2e</span>, потом <span class="mono">mvn verify -Pe2e</span></td></tr>
+  </table>
+  <p>Dockerfile копирует толстый jar <span class="mono">1.0.0</span>. IDE сквозной класс запускает как обычный JUnit и берёт уже собранный локальный тег. Зелёный <span class="mono">mvn test</span> образ не обновляет. Отсюда 400 и 500: класс теста уже новый, jar внутри образа ещё старый.</p>
+  <table>
+    <tr><th>Что видно</th><th>Куда смотреть</th></tr>
+    <tr><td>Could not find a valid Docker environment</td><td>Docker Desktop не запущен или сокет недоступен процессу IDE</td></tr>
+    <tr><td>Падение на соединении сразу после старта</td><td>адрес прочитали до готовности. В реестр кладут лямбду</td></tr>
+    <tr><td>Первый метод зелёный, второй не видит базу</td><td>контейнер не static, контекст остался со старым портом</td></tr>
+    <tr><td>validate падает, таблиц нет</td><td>на срезе забыли <span class="mono">Replace.NONE</span> или импорт Flyway</td></tr>
+    <tr><td>Топик пустой, продюсер молчал</td><td>старая группа, <span class="mono">latest</span>, слишком короткий poll или bootstrap не из <span class="mono">props()</span></td></tr>
+    <tr><td>Сервис в контейнере не видит свою базу</td><td>ему передали localhost и наружный порт. Нужны псевдоним и внутренний 5432</td></tr>
+    <tr><td>Образ отвергнут PostgreSQLContainer</td><td>нужен <span class="mono">asCompatibleSubstituteFor("postgres")</span></td></tr>
+    <tr><td>Повторный локальный прогон красный</td><td>включён reuse, в контейнере данные прошлого запуска</td></tr>
+    <tr><td>Срез репозитория зелёный, SQL в сервисе падает</td><td>чтение прошло из сессии Hibernate. Нужны <span class="mono">flush</span> и <span class="mono">clear</span></td></tr>
+  </table>
+
+  <h2 id="classes">Девять классов этого репозитория</h2>
+  <p>Классов девять, методов шестнадцать. Каркас вида лежит выше. Здесь только то, что делает конкретный метод: подготовка, вызов и утверждение.</p>
+
+  <h3 id="t-validator">OrderValidatorTest — 3 метода</h3>
+  <div class="easy"><b>Простыми словами.</b> Берут готовый заказ, руками ставят статус и спрашивают валидатор, можно ли отменить. Базы нет.</div>
+  <p>Файл <span class="mono">.../service/OrderValidatorTest.java</span>. В поле <span class="mono">new OrderValidator()</span>. Заказ каждый раз берётся из <span class="mono">TestUtil.getOrder</span>.</p>
+  <div class="flow">
+    <div class="node"><strong>getOrder, затем setOrderStatus</strong></div>
+    <div class="arrow">↓</div>
+    <div class="row">
+      <div class="node rose"><strong>rejectsDelivered</strong><span>assertThrows</span></div>
+      <div class="node rose"><strong>rejectsAlreadyCancelled</strong><span>assertThrows</span></div>
+      <div class="node term"><strong>allowsConfirmed</strong><span>assertDoesNotThrow</span></div>
+    </div>
+  </div>
+  <p><span class="mono">canCancel</span> читает <span class="mono">order.getOrderStatus()</span>. Сравнение идёт только с <span class="mono">DELIVERED</span> и <span class="mono">CANCELLED</span>. Остальные статусы метод молча пропускает. Текст исключения и id заказа тесты не читают: им важен тип.</p>
+  <h4>canCancel_rejectsDeliveredOrder</h4>
+  <ol class="steps">
+    <li><span class="mono">TestUtil.getOrder()</span> собирает заказ со статусом CREATED, суммой 75.48 и двумя позициями. Сумма и позиции правилу не нужны.</li>
+    <li><span class="mono">setOrderStatus(DELIVERED)</span> подменяет статус на заготовке. Базы нет, строка никуда не пишется.</li>
+    <li>Лямбда вызывает <span class="mono">orderValidator.canCancel(order)</span>. Внутри первое <span class="mono">if</span> совпадает и бросает <span class="mono">CannotCancelException</span> с текстом «Нельзя отменить доставленный заказ».</li>
+    <li><span class="mono">assertThrows</span> успешен, если вылетело именно это исключение. Любой другой тип или тихое завершение красят метод.</li>
+  </ol>
+  <h4>canCancel_rejectsAlreadyCancelledOrder</h4>
+  <ol class="steps">
+    <li>Та же заготовка, статус ставят <span class="mono">CANCELLED</span>.</li>
+    <li>Первый <span class="mono">if</span> на DELIVERED не срабатывает. Второй совпадает и бросает <span class="mono">CannotCancelException</span> с текстом «Заказ уже отменён».</li>
+    <li>Успех снова только тип исключения. Сообщение не сравнивают.</li>
+  </ol>
+  <h4>canCancel_allowsConfirmedOrder</h4>
+  <ol class="steps">
+    <li>Статус ставят <span class="mono">CONFIRMED</span>.</li>
+    <li>Оба <span class="mono">if</span> ложны, метод возвращает <span class="mono">void</span>.</li>
+    <li><span class="mono">assertDoesNotThrow</span> успешен, если лямбда завершилась. Возвращаемого значения нет, проверять нечего.</li>
+  </ol>
+  <p>CREATED и WAITING_STOCK эти три метода не подают. По коду валидатора они тоже прошли бы: отдельных веток для них нет.</p>
+
+  <h3 id="t-service">OrderServiceTest — 2 метода</h3>
+  <div class="easy"><b>Простыми словами.</b> Настоящий сервис, пять подделок. Первый метод проверяет создание заказа на две позиции. Второй — что при смене статуса позвали валидатор и сохранение. Сумму и отмену резерва эти методы не доказывают.</div>
+  <p>Файл <span class="mono">.../service/OrderServiceTest.java</span>. Моки: репозиторий, маппер, клиент склада, продюсер, валидатор.</p>
+  <div class="flow">
+    <div class="node"><strong>shouldCreateOrder</strong><span>запрос на 2 позиции, все соседи — моки</span></div>
+    <div class="arrow">↓ createOrder</div>
+    <div class="row">
+      <div class="node term"><strong>ответ CONFIRMED</strong><span>число 199.99 из фикстуры</span></div>
+      <div class="node term"><strong>verify</strong><span>save × 1, sendOrderConfirmed × 2</span></div>
+    </div>
+  </div>
+  <p>Склад на любой товар отвечает «есть» и «зарезервировано». Два вызова продюсера совпадают с двумя позициями. Сумму сервис не считает.</p>
+  <p>Числа в <span class="mono">TestUtil</span> друг с другом не сходятся. Это важно, иначе кажется, что тест проверяет арифметику.</p>
+  <table>
+    <tr><th>Метод</th><th>Что внутри</th></tr>
+    <tr><td><span class="mono">getOrderRequest</span></td><td>2 по 29.99 и 1 по 15.50, Ho Chi Minh City, Nguyen Hue. Настоящий маппер дал бы сумму 75.48</td></tr>
+    <tr><td><span class="mono">getOrder</span></td><td>статус CREATED, сумма уже 75.48, доставка плюс 5 дней. Маппер-мок возвращает это вместо расчёта</td></tr>
+    <tr><td><span class="mono">getSavedOrder</span></td><td>тот же id, CONFIRMED, сумма 75.48. Так мок отвечает на <span class="mono">save</span></td></tr>
+    <tr><td><span class="mono">getOrderResponse</span></td><td>CONFIRMED и сумма 199.99, доставка плюс 5 дней. Именно это проверяет тест. 199.99 не получается из цен. В сервисе срок доставки плюс 3 дня</td></tr>
+    <tr><td><span class="mono">getAvailableStockCheckResponse</span></td><td>available true, остаток 10, IN_STOCK. Матчер <span class="mono">any()</span>, товар любой</td></tr>
+    <tr><td><span class="mono">getReservedStockResponse</span></td><td>available true, остаток 8, RESERVED. Тест не проверяет, что 10 стало 8</td></tr>
+    <tr><td><span class="mono">getUpdateStatusRequest</span></td><td>CANCELLED и reason-заготовка. Причину тест не читает</td></tr>
+    <tr><td><span class="mono">getRequest</span></td><td>productId позиции. В <span class="mono">updateStatus</span> передаётся он, не id заказа. <span class="mono">findById(any())</span> всё равно возвращает заказ</td></tr>
+  </table>
+  <h4>shouldCreateOrder — ход настоящего сервиса на моках</h4>
+  <ol class="steps">
+    <li>До вызова пять <span class="mono">when</span>. Маппер на этот запрос возвращает <span class="mono">getOrder()</span>. Склад на любой UUID и любое количество отвечает «есть, остаток 10» и «зарезервировано, остаток 8». <span class="mono">save</span> возвращает другой объект, <span class="mono">getSavedOrder()</span>. Ответ наружу — <span class="mono">getOrderResponse()</span> со статусом CONFIRMED и суммой 199.99.</li>
+    <li><span class="mono">CheckResponseUtil.validateCreateOrder</span> — настоящий код, не мок. У запроса есть покупатель, две позиции и адрес, поэтому исключение не бросается.</li>
+    <li><span class="mono">dtoMapper.toOrder</span> отдаёт заготовку CREATED. <span class="mono">assembleOrder</span> тоже настоящий: он обходит две позиции заготовки, считает 2×29.99 + 15.50 и записывает 75.48 и доставку через 3 дня. Тест это число не читает.</li>
+    <li>Цикл идёт по двум позициям заготовки. На каждой <span class="mono">checkStock</span> возвращает available true. <span class="mono">processStockResponse</span> смотрит только, что объект не null, и пропускает. Ветка «товара нет» не берётся. <span class="mono">reserveStock</span> тоже available true, <span class="mono">processReserveStockResponse</span> не бросает.</li>
+    <li>После цикла сервис ставит заготовке CONFIRMED, зовёт <span class="mono">save</span> один раз и <span class="mono">publishOrderConfirmed</span>. Продюсер вызывается по числу позиций сохранённого заказа, их две. Затем маппер-мок отдаёт DTO с 199.99.</li>
+    <li>Утверждения: ответ не null и строка статуса равна <span class="mono">CONFIRMED</span>. <span class="mono">verify</span> требует <span class="mono">sendOrderConfirmed</span> ровно два раза и один <span class="mono">save</span>. Тело события, сумма 75.48 и остаток 10→8 не сравниваются.</li>
+  </ol>
+  <h4>shouldUpdateStatus — ход updateStatus</h4>
+  <ol class="steps">
+    <li><span class="mono">getRequest().productId()</span> передаётся первым аргументом. Это id позиции, не id заказа. <span class="mono">findById(any())</span> всё равно возвращает <span class="mono">getOrder()</span>, а у той заготовки статус CREATED.</li>
+    <li>Запрос статуса — CANCELLED, поэтому <span class="mono">NoSuchStatusException</span> не бросается. Дальше сервис зовёт <span class="mono">orderValidator.canCancel</span>. Валидатор — мок и по умолчанию ничего не делает, ветка DELIVERED здесь не исполняется.</li>
+    <li><span class="mono">hasReservedStock</span> истинен только при статусе CONFIRMED. Заготовка CREATED, поэтому <span class="mono">releaseStock</span> не вызывается. <span class="mono">updateEntity</span> — мок и колонку <span class="mono">cancelled_at</span> не заполняет. Затем один <span class="mono">save</span> и настоящий вызов <span class="mono">publishOrderCancelled</span> на мок-продюсере.</li>
+    <li>Наружу снова уходит готовый DTO со статусом CONFIRMED. Тест проверяет этот статус и три вызова: <span class="mono">canCancel</span>, <span class="mono">updateEntity</span>, <span class="mono">save</span>. <span class="mono">sendOrderCancelled</span> и <span class="mono">releaseStock</span> в <span class="mono">verify</span> не стоят, хотя продюсер в этом прогоне вызывается.</li>
+  </ol>
+
+  <h3 id="t-retry">WarehouseClientResilienceTest — 2 метода</h3>
+  <div class="easy"><b>Простыми словами.</b> Клиент склада ходит в фальшивый сервер. Три ответа 500 должны превратиться в «склад недоступен». Один ответ 404 должен выйти сразу, без повтора.</div>
+  <p>Файл <span class="mono">.../integration/client/WarehouseClientResilienceTest.java</span>. Docker нет. Контекст узкий: класс <span class="mono">TestConfig</span> импортирует клиент, <span class="mono">RetryConfig</span> и автоконфигурацию circuit breaker, плюс бин <span class="mono">warehouseRestTemplate</span>. Профиль даёт адрес <span class="mono">http://warehouse.test</span>, 3 попытки, паузу 10 мс. Перед каждым методом сервер привязывают к этому <span class="mono">RestTemplate</span>. Товар фиксированный, количество 1. URL — <span class="mono">/api/warehouse/check?productId=...&amp;qty=1</span>.</p>
+  <p>Базу и Kafka методы не трогают. В <span class="mono">OrderServiceKafkaIT</span> этот клиент не участвует: там он заменён моком целиком.</p>
+  <h4>checkStock_whenWarehouseReturns5xx_retriesThenFailsAsUnavailable</h4>
+  <ol class="steps">
+    <li><span class="mono">@BeforeEach</span> заново вешает <span class="mono">MockRestServiceServer</span> на бин <span class="mono">warehouseRestTemplate</span>. Старые ожидания прошлого метода не остаются.</li>
+    <li><span class="mono">expect(times(3))</span> берёт 3 из <span class="mono">retryProperties.getMaxAttempts()</span> и требует точный URL <span class="mono">http://warehouse.test/api/warehouse/check?productId=11111111-1111-1111-1111-111111111111&amp;qty=1</span>. Каждый ответ — 500 без тела.</li>
+    <li>Вызов идёт в настоящий <span class="mono">WarehouseClient.checkStock</span>. Снаружи аспект circuit breaker. Внутри <span class="mono">RetryTemplate</span>. <span class="mono">HttpServerErrorException</span> есть в списке повторяемых исключений профиля, рядом с таймаутом сокета, <span class="mono">ResourceAccessException</span> и <span class="mono">IOException</span>.</li>
+    <li>Первый GET получает 500, шаблон ждёт 10 мс и повторяет. Так три раза. После третьего шаблон сдаётся, аспект вызывает <span class="mono">fallbackCheckStock</span>, тот бросает <span class="mono">WarehouseUnavailableException</span>, а исходный 500 остаётся причиной.</li>
+    <li><span class="mono">assertThatThrownBy</span> требует оба типа. <span class="mono">server.verify()</span> требует, что запросов было ровно три. Предохранитель не открывается: до 100 вызовов метод не доходит.</li>
+  </ol>
+  <h4>checkStock_whenWarehouseReturns4xx_propagatesClientError</h4>
+  <ol class="steps">
+    <li>Ожидание одно: HTTP 404 на тот же URL. Второй запрос сервер не разрешает.</li>
+    <li><span class="mono">RestTemplate</span> бросает <span class="mono">HttpClientErrorException.NotFound</span>. Этого класса нет в списке повторов, шаблон не делает второй GET.</li>
+    <li><span class="mono">HttpClientErrorException</span> нет в списке повторов, второй GET не уходит. В yaml это исключение стоит в <span class="mono">ignore-exceptions</span> предохранителя. Если fallback всё же вызван, <span class="mono">unavailable</span> сам пробрасывает 4xx дальше и не делает из неё <span class="mono">WarehouseUnavailableException</span>. Тест ждёт именно <span class="mono">NotFound</span>.</li>
+    <li><span class="mono">server.verify()</span> падает, если клиент всё же сходил второй раз.</li>
+  </ol>
+
+  <h3 id="t-repo">OrderRepositoryTest — 2 метода</h3>
+  <div class="easy"><b>Простыми словами.</b> Пишут заказ в настоящий Postgres и читают его обратно уже с диска, не из памяти Hibernate. Второй метод проверяет, что отменённые заказы в список не попадают.</div>
+  <p>Файл <span class="mono">.../db/repository/OrderRepositoryTest.java</span>. Один статический Postgres 16 с <span class="mono">@ServiceConnection</span>. Kafka и сервис не поднимаются.</p>
+  <pre><code>@DataJpaTest
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@ImportAutoConfiguration(FlywayAutoConfiguration.class)
+@Testcontainers
+class OrderRepositoryTest {
+    @Container @ServiceConnection
+    static PostgreSQLContainer&lt;?&gt; postgres = new PostgreSQLContainer&lt;&gt;("postgres:16-alpine");
+}</code></pre>
+  <div class="flow">
+    <div class="row">
+      <div class="node term"><strong>saveAndFindById</strong><span>CONFIRMED, сумма 19.99<br>flush, clear, findById</span></div>
+      <div class="node"><strong>список без отменённых</strong><span>CONFIRMED остаётся<br>CANCELLED выпадает<br>страница 0, размер 20</span></div>
+    </div>
+    <div class="arrow">↓ конец метода</div>
+    <div class="node blue"><strong>откат транзакции среза</strong><span>второй метод строк первого не видит</span></div>
+  </div>
+  <h4>saveAndFindById</h4>
+  <ol class="steps">
+    <li><span class="mono">saveOrder(CONFIRMED)</span> собирает заказ без позиций: новый <span class="mono">customerId</span>, сумма 19.99, <span class="mono">createdAt</span> равен сейчас. <span class="mono">orderRepository.save</span> кладёт его в сессию Hibernate. Id появляется из Postgres, в миграции это <span class="mono">gen_random_uuid()</span>.</li>
+    <li><span class="mono">flush</span> отправляет INSERT сразу. <span class="mono">clear</span> выкидывает объект из сессии. Дальше <span class="mono">findById</span> не может подсмотреть память и читает строку.</li>
+    <li>Успех — статус найденной строки CONFIRMED и тот же <span class="mono">customerId</span>, что запомнили до очистки. Сумму, адрес и позиции метод не смотрит: позиций в заготовке нет.</li>
+    <li>Метод кончается, <span class="mono">@DataJpaTest</span> откатывает транзакцию. Строка не остаётся следующему методу.</li>
+  </ol>
+  <h4>findAllByOrderStatusNot_excludesCancelled</h4>
+  <ol class="steps">
+    <li>Два вызова <span class="mono">saveOrder</span>: один CONFIRMED, второй CANCELLED. У каждого свой случайный покупатель и сумма 19.99. Затем снова <span class="mono">flush</span> и <span class="mono">clear</span>.</li>
+    <li>Репозиторий — метод Spring Data <span class="mono">findAllByOrderStatusNot(CANCELLED, PageRequest.of(0, 20))</span>. Он строит запрос «статус не равен CANCELLED» и берёт первую страницу на 20 строк.</li>
+    <li>Успех — в содержимом страницы ровно один id, id подтверждённого заказа. <span class="mono">containsExactly</span> падает и на лишнюю строку, и на другой порядок. Отменённый id в список не входит.</li>
+    <li>Откат стирает обе строки. Контейнер при этом тот же: чистится транзакция, не Docker.</li>
+  </ol>
+
+  <h3 id="t-context">Два пустых contextLoads</h3>
+  <div class="flow">
+    <div class="row">
+      <div class="node blue"><strong>Заказы</strong><span>Postgres контейнера<br>Kafka из yaml не вызывается</span></div>
+      <div class="node"><strong>Склад</strong><span>уже запущенные<br>localhost:5433 и :9092</span></div>
+    </div>
+    <div class="arrow">↓ пустой метод</div>
+    <div class="node term"><strong>успех = контекст собрался</strong><span>Flyway прошёл, validate совпал. Заказ не создаётся</span></div>
+  </div>
+  <h4>ShopeeProjectApplicationTests.contextLoads</h4>
+  <ol class="steps">
+    <li>JUnit видит статический <span class="mono">PostgreSQLContainer</span> postgres:16-alpine и стартует его до контекста. <span class="mono">@ServiceConnection</span> сам подставляет url, имя и пароль. <span class="mono">@DynamicPropertySource</span> в классе нет.</li>
+    <li><span class="mono">@SpringBootTest</span> поднимает всё приложение заказов. Flyway накатывает V1–V4. Hibernate с <span class="mono">ddl-auto: validate</span> сверяет сущности с этими таблицами. Расхождение роняет контекст до метода.</li>
+    <li>Kafka в yaml остаётся <span class="mono">localhost:9092</span>. Продюсер создаётся лениво, метод брокер не вызывает, поэтому отсутствие локальной Kafka не мешает.</li>
+    <li>Тело метода пустое. Успех — дошли до конца без исключения. Заказ, HTTP и топик не создаются.</li>
+  </ol>
+  <h4>WarehouseServiceApplicationTests.contextLoads</h4>
+  <ol class="steps">
+    <li>Аннотации <span class="mono">@Testcontainers</span> нет. Контекст склада читает свой yaml и сам открывает <span class="mono">localhost:5433</span>, базу <span class="mono">warehouse_service_db</span>, пользователя <span class="mono">admin</span>, пароль <span class="mono">warehouse</span>, и Kafka <span class="mono">localhost:9092</span>.</li>
+    <li>Если compose не запущен или таблица <span class="mono">product_stock</span> не создана миграцией склада, контекст падает раньше пустого метода.</li>
+    <li>Тело пустое. Резерв, освобождение и кеш <span class="mono">checkStock</span> не вызываются. Успех значит только «бины склада собрались на уже запущенной машине».</li>
+  </ol>
+
+  <h3 id="t-smoke">KafkaContainerSmokeTest — 1 метод</h3>
+  <div class="flow">
+    <div class="node"><strong>KafkaContainer 7.6.1</strong><span>Spring нет, топик не создаётся</span></div>
+    <div class="arrow">↓</div>
+    <div class="node term"><strong>isRunning</strong><span>процесс включился. Заказ эта проверка не смотрит</span></div>
+  </div>
+  <h4>starts</h4>
+  <ol class="steps">
+    <li><span class="mono">@Testcontainers</span> до метода вызывает <span class="mono">start()</span> у статического <span class="mono">KafkaContainer</span>. Образ <span class="mono">confluentinc/cp-kafka:7.6.1</span>. Spring, топики и продюсер не создаются.</li>
+    <li>Контейнер считается готовым, когда модуль Kafka увидел свой признак старта. Метод печатает <span class="mono">getBootstrapServers()</span>: хост и случайный проброшенный порт.</li>
+    <li>Единственное утверждение — <span class="mono">isRunning()</span> истинен. Запись в топик, группа и протокол не проверяются.</li>
+    <li>После класса контейнер останавливается. Образ 7.6.1 здесь только для этой проверки. Рабочий стык с сервисом сидит на 7.4.4: дефолты брокера между тегами расходятся, и зелёный <span class="mono">isRunning</span> это не выравнивает.</li>
+  </ol>
+
+  <h3 id="t-kafka">OrderServiceKafkaIT — 1 метод</h3>
+  <div class="easy"><b>Простыми словами.</b> Создают заказ через настоящий сервис. Склад отвечает «товар есть», но это подделка. Дальше смотрят две вещи: в базе статус CONFIRMED и сумма 19.98, в Kafka одна запись с ключом этого заказа.</div>
+  <p>Файл <span class="mono">.../db/kafka/kafkaIT/OrderServiceKafkaIT.java</span>. Единственный класс, где одновременно живут настоящий Postgres и настоящая Kafka, а сервис заказов исполняется в JVM теста. Вопрос метода <span class="mono">createOrder_savesToDb_and_publishesConfirmedEvent</span>: после <span class="mono">createOrder</span> в базе заказ <span class="mono">CONFIRMED</span> на 19.98 и в топике <span class="mono">order.confirmed</span> ровно одна запись, ключ которой равен id заказа.</p>
+  <div class="flow">
+    <div class="row">
+      <div class="node"><strong>Postgres 16</strong><span>static @Container<br>база test / test / test</span></div>
+      <div class="node"><strong>Kafka 7.4.4</strong><span>static @Container<br>случайный bootstrap</span></div>
+    </div>
+    <div class="arrow">↓ четыре лямбды в props()</div>
+    <div class="node blue"><strong>Контекст</strong><span>Flyway V1–V4, validate, четыре NewTopic</span></div>
+    <div class="arrow">↓</div>
+    <div class="node rose"><strong>@MockBean WarehouseClient</strong><span>check и reserve всегда available true. HTTP склада нет</span></div>
+    <div class="arrow">↓</div>
+    <div class="row">
+      <div class="node term"><strong>База</strong><span>CONFIRMED, сумма 19.98</span></div>
+      <div class="node term"><strong>Топик</strong><span>1 запись, ключ = id, quantity 2</span></div>
+    </div>
+  </div>
+  <p>Мок <span class="mono">checkStock</span> возвращает available true, остаток 100, статус OK. <span class="mono">reserveStock</span> возвращает available true и статус RESERVED. Запрос собирают в тесте: случайные UUID, одна позиция, количество 2, цена 9.99, адрес Hanoi, Nguyen Trai, 42, квартира 7A. Сумма 19.98 получается в сервисе умножением. Вызов идёт в <span class="mono">orderService.createOrder</span>, не в контроллер. Маппер ставит заказу CREATED и доставку через 3 дня, затем оба ответа склада положительные, статус становится CONFIRMED, заказ сохраняется, продюсер шлёт одно событие: позиция одна.</p>
+  <h4>createOrder_savesToDb_and_publishesConfirmedEvent</h4>
+  <ol class="steps">
+    <li>До метода уже живут два контейнера и контекст. Четыре бина <span class="mono">NewTopic</span> создают <span class="mono">order.confirmed</span>, <span class="mono">order.waiting-stock</span>, <span class="mono">order.cancelled</span>, <span class="mono">order.pending-review</span>: одна партиция, фактор репликации 1.</li>
+    <li>Мок склада: <span class="mono">checkStock</span> всегда available true, остаток 100, статус OK. <span class="mono">reserveStock</span> всегда available true, статус RESERVED. HTTP склада нет.</li>
+    <li>Запрос собирают в методе, не из <span class="mono">TestUtil</span>. Случайный покупатель, одна позиция, случайный товар, количество 2, цена 9.99, адрес Hanoi, Nguyen Trai, дом 42, квартира 7A.</li>
+    <li>Вызов — <span class="mono">orderService.createOrder</span>, контроллер не участвует. Настоящий маппер ставит CREATED. Настоящий <span class="mono">assembleOrder</span> считает 2×9.99 = 19.98 и доставку через 3 дня. Оба ответа склада положительные, статус становится CONFIRMED, <span class="mono">save</span> пишет строку в Postgres контейнера. Продюсер шлёт одно событие: позиция одна, ключ — id заказа.</li>
+    <li>Первая проверка читает ту же базу через <span class="mono">orderRepository.findById(response.orderId())</span>. Статус CONFIRMED, сумма сравнивается как число 19.98.</li>
+    <li><span class="mono">readAll</span> открывает своего потребителя. Группа <span class="mono">test-</span> плюс новый UUID, чтобы смещение прошлого прогона не спрятало запись. <span class="mono">auto.offset.reset=earliest</span> читает топик с начала. Один <span class="mono">poll</span> на 10 секунд. Успех — ровно одна запись, ключ равен id заказа, в JSON есть этот <span class="mono">orderId</span>, этот <span class="mono">productId</span> и <span class="mono">"quantity":2</span>.</li>
+    <li>Метод не смотрит HTTP-код, таблицу <span class="mono">order_items</span>, остальные три топика и ветку «товара нет». Первый <span class="mono">poll</span> сразу после <span class="mono">subscribe</span> иногда пустой, пока группа входит в ребаланс: тогда метод красный при уже отправленном событии.</li>
+  </ol>
+
+  <h3 id="t-e2e">FullInteractionE2ETest — 3 метода</h3>
+  <div class="easy"><b>Простыми словами.</b> Поднимают заказы и склад как два настоящих сервиса. Тест шлёт обычный POST и потом сам смотрит в базы: статус заказа и остаток. Три сценария на одном стенде: товар есть, товара нет, склад выключен.</div>
+  <p>Файлы <span class="mono">src/test/java/e2e/FullInteractionE2ETest.java</span> и <span class="mono">E2EStack.java</span>. <span class="mono">@SpringBootTest</span> здесь нет. Логика живёт в образах <span class="mono">shopee-project:e2e</span> и <span class="mono">warehouse-service:e2e</span>. Образы тест не собирает. Порт и псевдоним разобраны в лекции выше. Ниже устройство этого стенда.</p>
+  <div class="flow">
+    <div class="node"><strong>Одна сеть</strong><span>имена живут только внутри неё</span></div>
+    <div class="arrow">↓</div>
+    <div class="row">
+      <div class="node"><strong>shopee-db</strong><span>shopee-project / admin / shopee</span></div>
+      <div class="node"><strong>warehouse-db</strong><span>warehouse_service_db / admin / warehouse</span></div>
+      <div class="node"><strong>kafka</strong><span>apache/kafka:3.7.1, KRaft</span></div>
+    </div>
+    <div class="arrow">↓ health 200</div>
+    <div class="row">
+      <div class="node blue"><strong>склад</strong><span>API 8081, actuator 8098<br>алиас warehouse</span></div>
+      <div class="node blue"><strong>заказы</strong><span>API 8080, actuator 8088<br>http://warehouse:8081</span></div>
+    </div>
+  </div>
+  <h4 id="e2e-start">Старт и стоп</h4>
+  <p><span class="mono">E2EStack</span> пакетный и <span class="mono">final</span>. Конструктор приватный, снаружи собирают только через <span class="mono">start()</span>. Локальные переменные в <span class="mono">start()</span> сначала null: если упадёт третий старт, первые объекты уже есть и их надо остановить, а четвёртый ещё не создан. Порядок: база заказов, база склада, брокер, склад, заказы. Заказы в флагах уже содержат <span class="mono">http://warehouse:8081</span>, поэтому склад слушает раньше. Любой <span class="mono">RuntimeException</span> вызывает остановку и <span class="mono">network.close()</span>, затем летит дальше. <span class="mono">stop()</span> гасит в обратном порядке: заказы, склад, брокер, база склада, база заказов, сеть. <span class="mono">stopOne</span> принимает <span class="mono">Startable</span> и пропускает null. Повторный <span class="mono">stop()</span> уже остановленного склада безопасен. Полей <span class="mono">@Container</span> нет: аннотация не обещает этот порядок и общий <span class="mono">Network</span>.</p>
+  <h4 id="e2e-db">Две базы</h4>
+  <p>У каждой базы два входа. Сервис ходит на <span class="mono">shopee-db:5432</span> или <span class="mono">warehouse-db:5432</span>. Тест сеет и читает через <span class="mono">getJdbcUrl()</span>. Это один Postgres. Flyway у обоих jar включён. Схема заказов — <span class="mono">classpath:db/migration</span>, V1–V4. Схема склада — <span class="mono">classpath:migration</span>, таблица <span class="mono">product_stock</span>. Томов нет, после <span class="mono">stop()</span> данные исчезают. Метод <span class="mono">postgres(...)</span> задаёт имя базы, пользователя, пароль, сеть и псевдоним. Образ <span class="mono">postgres:16-alpine</span>.</p>
+  <h4 id="e2e-flags">Флаги сервисов</h4>
+  <p>Флаги склада передаются через <span class="mono">JAVA_TOOL_OPTIONS</span>, потому что у теста нет Spring-контекста этих процессов. <span class="mono">-D</span> перекрывает yaml внутри jar:</p>
+  <pre><code>-Dspring.datasource.url=jdbc:postgresql://warehouse-db:5432/warehouse_service_db
+-Dspring.datasource.username=admin
+-Dspring.datasource.password=warehouse
+-Dspring.kafka.bootstrap-servers=kafka:9092
+-Dserver.port=8081
+-Dspring.flyway.enabled=true</code></pre>
+  <p>У заказов те же база и брокер на своих именах, плюс <span class="mono">-Dintegration.warehouse.url=http://warehouse:8081</span> и короткие повторы: начальная пауза 100 мс, потолок 200 мс, множитель 1. В yaml те же числа 2000 мс, потолок 10000 мс и множитель 2. Попыток по-прежнему три. Число попыток флагами не меняют. Без сжатия третий метод ждал бы паузы боевого yaml. Health ждут по HTTP 200: склад на внутреннем 8098, заказы на внутреннем 8088. Код 503 значит «процесс жив, брокер ещё нет». На подъём дано 3 минуты. API торчит на 8081 и 8080 и проброшен на хост.</p>
+  <h4 id="e2e-kafka">Брокер KRaft</h4>
+  <p>Брокер — <span class="mono">GenericContainer</span> образа <span class="mono">apache/kafka:3.7.1</span>, не <span class="mono">KafkaContainer</span>. Один процесс сразу broker и controller. Клиентам внутри сети говорят <span class="mono">PLAINTEXT://kafka:9092</span>. Контроллер слушает 9093, кворум из одного: <span class="mono">1@kafka:9093</span>. <span class="mono">CLUSTER_ID</span> задан строкой <span class="mono">MkU3OEVBNTcwNTJENDM2Qk</span>: у тега 3.7.0 первый формат хранилища мог записать неверный id и не дойти до старта. Фактор репликации offsets и transaction state log равен 1, min ISR равен 1. Иначе идемпотентный продюсер не поднимется на одном узле. <span class="mono">GROUP_INITIAL_REBALANCE_DELAY_MS=0</span>, чтобы группа <span class="mono">warehouse-service</span> не ждала лишних секунд. <span class="mono">AUTO_CREATE_TOPICS_ENABLE=true</span>: топик появляется на первой записи. Ждут строку лога <span class="mono">Kafka Server started</span>, не дольше 2 минут. Порт 9092 проброшен на хост, но тест им не пользуется: advertised всё равно имя <span class="mono">kafka</span>, с машины оно не откроется.</p>
+  <h4 id="e2e-class">Класс теста и JDBC</h4>
+  <p>Тестовый класс помечен <span class="mono">@Testcontainers(disabledWithoutDocker=true)</span>, <span class="mono">@TestInstance(PER_CLASS)</span> и <span class="mono">@TestMethodOrder</span>. Поле <span class="mono">stack</span> статическое, его заполняет <span class="mono">@BeforeAll</span> вызовом <span class="mono">E2EStack.start()</span>. <span class="mono">@AfterAll</span> проверяет <span class="mono">stack != null</span>: если старт бросил исключение до присваивания, останавливать нечего, это уже сделал <span class="mono">catch</span>. Каждый метод начинает с нового UUID товара. Общий UUID столкнулся бы с кешем <span class="mono">checkStock</span>: ключ — товар и количество. Выключение кеша через <span class="mono">spring.cache.type=none</span> явный <span class="mono">CacheManager</span> склада не отменяет, поэтому изоляция — новый ключ, а не флаг.</p>
+  <p><span class="mono">createOrder</span> собирает JSON: новый покупатель, цена 100, Москва, Тверская, дом 1, квартира 10. URL — <span class="mono">getHost()</span> и <span class="mono">getMappedPort(8080)</span>. <span class="mono">RestTemplate</span> на 4xx и 5xx бросает <span class="mono">HttpStatusCodeException</span>. Метод ловит его и возвращает статус вместе с телом, чтобы утверждение <span class="mono">.as("body: %s", body)</span> показало текст вроде «Нет подходящего статуса». <span class="mono">seedProduct</span> делает</p>
+  <pre><code>INSERT INTO product_stock (product_id, available_quantity, reserved_quantity) VALUES (?, ?, 0)</code></pre>
+  <p><span class="mono">id</span> и <span class="mono">version</span> не пишутся: в миграции у них есть значения по умолчанию. <span class="mono">stock</span> читает те же две колонки и падает, если строки нет: это ошибка подготовки, а не нулевой остаток. <span class="mono">orderStatus</span> соединяет <span class="mono">orders</span> и <span class="mono">order_items</span> по товару и возвращает <span class="mono">Optional</span>. Пустой Optional значит, что заказ не сохранился. Запись <span class="mono">Stock</span> — две колонки, которые тесты сравнивают с 97/3, 0/0 и 10/0.</p>
+  <table>
+    <tr><th>Метод</th><th>Подготовка</th><th>Ответ</th><th>След</th></tr>
+    <tr><td><span class="mono">confirmedOrderReservesStock</span></td><td>остаток 100, заказ на 3</td><td>201 и <span class="mono">"status":"CONFIRMED"</span></td><td>в базе заказов CONFIRMED; на складе 97 и 3; в логе склада <span class="mono">[order.confirmed]</span>. Резерв синхронный, лог ждут отдельно до 15 секунд: его пишет <span class="mono">OrderEventListener</span>, когда запись дошла до группы</td></tr>
+    <tr><td><span class="mono">outOfStockWaitsWithoutReserve</span></td><td>остаток 0, заказ на 1</td><td>202 и <span class="mono">WAITING_STOCK</span></td><td>резерв 0 и 0; статус заказа в базе; лог <span class="mono">[order.waiting-stock]</span>. <span class="mono">processStockResponse</span> проверяет только то, что ответ не null. Ветку «товара нет» выполняет <span class="mono">OrderService.handleOutOfStock</span>. Нулевой остаток сам по себе слабый след: он остался бы нулём и если бы запрос умер на валидации</td></tr>
+    <tr><td><span class="mono">warehouseDownLeavesStockUntouched</span></td><td>остаток 10, затем <span class="mono">stopWarehouse()</span>. База склада жива</td><td>201 и <span class="mono">CREATED</span></td><td>остаток 10 и 0; лог заказов «Склад недоступен на checkStock». Это пишет fallback клиента. Слушатель склада событие <span class="mono">order.pending-review</span> не прочитает: процесс уже остановлен. Тело события метод не проверяет</td></tr>
+  </table>
+  <div class="flow">
+    <div class="node term"><strong>1. Товар есть</strong><span>100 штук, заказ на 3 → 201 CONFIRMED<br>склад 97 и 3, лог [order.confirmed]</span></div>
+    <div class="arrow">↓ тот же стенд, новый UUID</div>
+    <div class="node"><strong>2. Остатка нет</strong><span>0 штук, заказ на 1 → 202 WAITING_STOCK<br>резерв 0, лог [order.waiting-stock]</span></div>
+    <div class="arrow">↓ stopWarehouse, базы живы</div>
+    <div class="node rose"><strong>3. Склад выключен</strong><span>было 10 → 201 CREATED<br>остаток 10 и 0, лог заказов про checkStock</span></div>
+  </div>
+  <p class="cap">Третий метод гасит контейнер склада. Поэтому у него номер 3: после него сценарий «склад жив» уже не поставить.</p>
+  <h4>confirmedOrderReservesStock</h4>
+  <ol class="steps">
+    <li>Новый UUID товара. <span class="mono">seedProduct</span> вставляет строку в <span class="mono">product_stock</span> базы склада: доступно 100, резерв 0. JDBC идёт с машины на проброшенный порт <span class="mono">warehouse-db</span>.</li>
+    <li><span class="mono">createOrder(productId, 3)</span> шлёт POST на проброшенный порт 8080 контейнера заказов. В JSON новый покупатель, цена 100, Москва, Тверская, дом 1, квартира 10.</li>
+    <li>Внутри контейнера заказов настоящий <span class="mono">createOrder</span>: проверка остатка на <span class="mono">http://warehouse:8081</span>, ответ «есть», резерв 3 штук, статус CONFIRMED, сохранение в <span class="mono">shopee-db</span>, событие <span class="mono">order.confirmed</span> в брокер <span class="mono">kafka:9092</span>.</li>
+    <li>HTTP 201. Тело содержит <span class="mono">"status":"CONFIRMED"</span>. Если код другой, <span class="mono">.as("body: %s", body)</span> печатает текст ответа. <span class="mono">orderStatus</span> тем же товаром читает <span class="mono">orders</span> через <span class="mono">order_items</span> и ждёт CONFIRMED.</li>
+    <li><span class="mono">stock</span> читает склад: доступно 97, резерв 3. Это синхронный след reserve, его не ждут.</li>
+    <li>Лог склада ждут до 15 секунд через Awaitility, пока не появится подстрока <span class="mono">[order.confirmed]</span>. Её пишет слушатель склада, когда запись дошла до группы. Подстрока не доказывает, что событие про этот товар.</li>
+  </ol>
+  <h4>outOfStockWaitsWithoutReserve</h4>
+  <ol class="steps">
+    <li>Другой UUID. В склад пишут доступно 0 и резерв 0. Кеш <span class="mono">checkStock</span> ключуется товаром и количеством, поэтому повтор чужого UUID сюда не попадает.</li>
+    <li>POST на 1 штуку. Склад отвечает, что товара нет. <span class="mono">processStockResponse</span> пустой ответ не видит и не бросает. <span class="mono">handleOutOfStock</span> ставит WAITING_STOCK, сохраняет заказ и шлёт <span class="mono">order.waiting-stock</span>. <span class="mono">reserveStock</span> не вызывается.</li>
+    <li>HTTP 202, в теле <span class="mono">"status":"WAITING_STOCK"</span>, та же строка в базе заказов. На складе по-прежнему 0 и 0. Ноль слабый след: он остался бы нулём и если бы запрос умер до склада. Отличить ветку помогает статус заказа и лог.</li>
+    <li>До 15 секунд ждут подстроку <span class="mono">[order.waiting-stock]</span> в логе склада.</li>
+  </ol>
+  <h4>warehouseDownLeavesStockUntouched</h4>
+  <ol class="steps">
+    <li>Третий UUID, в склад пишут 10 штук. Затем <span class="mono">stopWarehouse()</span> гасит только контейнер склада. База склада, база заказов, брокер и контейнер заказов остаются.</li>
+    <li>POST на 1 штуку. Клиент три раза не достучался до <span class="mono">warehouse:8081</span>. Паузы короткие: 100 мс, потолок 200 мс, множитель 1. Fallback бросает <span class="mono">WarehouseUnavailableException</span>. <span class="mono">handleWarehouseError</span> сохраняет заказ как CREATED и публикует <span class="mono">order.pending-review</span>. Слушатель склада это не прочитает: процесс уже остановлен.</li>
+    <li>HTTP 201 и статус CREATED. Тот же статус в базе заказов. Лог контейнера заказов за 15 секунд содержит «Склад недоступен на checkStock».</li>
+    <li>Чтение склада идёт в живую базу, не в остановленный процесс: доступно 10, резерв 0. Тело события метод не проверяет.</li>
+  </ol>
+  <p>Подстрока <span class="mono">[order.confirmed]</span> не доказывает, что событие про этот <span class="mono">productId</span>. Точное тело и ключ проверяет <span class="mono">OrderServiceKafkaIT</span>. Три ответа 500 на фальшивом сервере считает тест клиента. Здесь склад просто исчез, и смотрят итог: резерва нет, заказ сохранён как CREATED.</p>
+
+  <h2 id="gaps">Что код умеет и какой тест это закрывает</h2>
+  <table>
+    <tr><th>Поведение</th><th>Где закрыто</th><th>Чего нет</th></tr>
+    <tr><td>Товар есть, CONFIRMED, сумма из цены и количества</td><td>Kafka IT: 19.98 и одна запись. Сквозной: 201 и остаток 100→97</td><td>модульный тест сумму не считает, там 199.99 из фикстуры</td></tr>
+    <tr><td>Товара нет, WAITING_STOCK, reserve не вызывается</td><td>только сквозной метод, HTTP 202 и лог</td><td>нет <span class="mono">verify(never())</span> и нет своего потребителя топика</td></tr>
+    <tr><td>Склад недоступен, CREATED, pending-review</td><td>сквозной: 201, остаток не тронут, строка в логе заказов</td><td>тело события никто не читает</td></tr>
+    <tr><td>Две позиции: первая зарезервирована, вторая недоступна</td><td>нет теста</td><td>цикл <span class="mono">createOrder</span> возвращает WAITING_STOCK и уже сделанный reserve не откатывает</td></tr>
+    <tr><td><span class="mono">updateStatus</span> на CANCELLED у CONFIRMED</td><td>модульный тест видит <span class="mono">canCancel</span>, <span class="mono">updateEntity</span>, <span class="mono">save</span></td><td>release и <span class="mono">order.cancelled</span> не проверяются. Ответ фикстуры — CONFIRMED</td></tr>
+    <tr><td><span class="mono">cancelOrder</span></td><td>нет теста</td><td>метод не зовёт валидатор, не отпускает резерв и не пишет в Kafka. Повтор бросает <span class="mono">InvalidOrderStatusException</span></td></tr>
+    <tr><td><span class="mono">getOrderById</span> и список без отменённых</td><td>SQL списка — срез репозитория</td><td>404 и контроллер не вызываются</td></tr>
+    <tr><td>Коды 400, 404, 409, 500, 503</td><td>сквозной видит только 201 и 202</td><td>обработчика и <span class="mono">@Valid</span> без MockMvc нет</td></tr>
+    <tr><td>Открытие circuit breaker, таймаут, <span class="mono">releaseStock</span> клиента</td><td>нет</td><td>есть только три 500 и один 404</td></tr>
+    <tr><td>Склад: reserve, release, кеш <span class="mono">checkStock</span></td><td>числа видит сквозной тест через JDBC</td><td>в модуле склада нет теста сервиса</td></tr>
+    <tr><td>Маппер: новый заказ CREATED, доставка плюс 3 дня</td><td>нет отдельного теста</td><td>в модульном тесте маппер — мок</td></tr>
+  </table>
+  <div class="say">
+    <b>КУДА КЛАСТЬ ДЫРУ</b>
+    Ветку сервиса закрывают Mockito. Тело события закрывают потребителем в OrderServiceKafkaIT. Чужую таблицу склада закрывают сквозным тестом или тестом самого склада. Пустой contextLoads ни одну из этих строк не закрывает.
+  </div>
+
+  <h2 id="interview">Собеседование</h2>
+  <p>Лекция про виды и Testcontainers лежит выше, в <a href="#choose">выборе теста</a> и в <a href="#tc">разделе контейнеров</a>. Здесь то, как это рассказывают вслух: пирамида, пять подмен, вопросы по каждому виду и банк.</p>
+
+  <h2 id="iv-levels">Чем ответ мидла отличается от ответа сеньора</h2>
+  <p>На собеседовании про тесты не спрашивают список аннотаций. Спрашивают, какой след проверяют и какой ценой. Мидл показывает, что умеет собрать один правильный тест. Сеньор показывает, почему соседний вид был бы ложным или слишком дорогим, и что сломается в CI через месяц.</p>
+  <table>
+    <tr><th></th><th>Мидл</th><th>Сеньор</th></tr>
+    <tr><td>Первая фраза</td><td>«Покрыл сервис моками и проверил verify»</td><td>«Правило живёт в валидаторе, поэтому там чистый тест. Стык с брокером — отдельный класс с настоящей Kafka. Склад в нём мок, потому что вопрос не про остаток»</td></tr>
+    <tr><td>Mockito</td><td>умеет <span class="mono">when</span> и <span class="mono">verify</span></td><td>ответ мока, который тест сам подложил, доказывает только вызов. Сумму заказа так не проверяют</td></tr>
+    <tr><td>Spring</td><td>знает <span class="mono">@SpringBootTest</span> и <span class="mono">@DataJpaTest</span></td><td>объясняет ключ кеша контекста, зачем <span class="mono">Replace.NONE</span>, почему <span class="mono">@Transactional</span> на тесте с Kafka врёт</td></tr>
+    <tr><td>Testcontainers</td><td>«поднимает Postgres в Docker»</td><td>рисует два адреса, static-поле, лямбду, Ryuk, случайный порт и разницу Confluent и KRaft</td></tr>
+    <tr><td>Падение в CI</td><td>перезапускает тест</td><td>различает гонку, старую группу потребителя, reuse, устаревший образ и не static контейнер</td></tr>
+  </table>
+  <div class="say">
+    <b>КАК ОТВЕЧАТЬ</b>
+    Сначала одно предложение: какой вопрос у теста. Потом кто в прогоне настоящий. Потом какое утверждение читает следствие. Если интервьюер молчит, сами назовите, чего этот тест не доказывает.
+  </div>
+
+  <h2 id="iv-pyramid">Пирамида и цена прогона</h2>
+  <p>Пирамида — распределение вопросов. У основания много дешёвых проверок одного класса. Наверху мало дорогих проверок нескольких процессов. В этом репозитории основание — валидатор и <span class="mono">OrderServiceTest</span>. Середина — срез репозитория, клиент склада, <span class="mono">OrderServiceKafkaIT</span>. Верх — <span class="mono">FullInteractionE2ETest</span>: три метода и пять контейнеров.</p>
+  <div class="flow">
+    <div class="node rose"><strong>Сквозной</strong><span>оба jar, HTTP, чужая таблица. Минуты. Мало сценариев</span></div>
+    <div class="arrow">↑ дешевле и больше штук</div>
+    <div class="node blue"><strong>Интеграционный и срезы</strong><span>настоящая база или брокер, сосед часто мок. Секунды на старт, потом быстро</span></div>
+    <div class="arrow">↑</div>
+    <div class="node"><strong>Модульные</strong><span>Mockito и чистые объекты. Миллисекунды. Сюда кладут каждую ветку сервиса</span></div>
+  </div>
+  <table>
+    <tr><th>Вид</th><th>Старт</th><th>Что доказывает</th><th>Чего не доказывает</th><th>Сколько держать</th></tr>
+    <tr><td>Чистый класс</td><td>нет</td><td>ветку по полям объекта</td><td>SQL, HTTP, Spring</td><td>на каждое правило валидации</td></tr>
+    <tr><td>Mockito</td><td>нет</td><td>кого вызвали и с каким аргументом</td><td>что сосед правда так ответил бы</td><td>на каждую ветку оркестрации</td></tr>
+    <tr><td>Срез MVC</td><td>узкий Spring</td><td>код, JSON, <span class="mono">@Valid</span>, advice</td><td>базу и брокер</td><td>на каждый публичный код ответа</td></tr>
+    <tr><td>Фальшивый HTTP</td><td>узкий Spring</td><td>число попыток и тип исключения</td><td>живой склад</td><td>на каждую политику клиента</td></tr>
+    <tr><td>Срез JPA</td><td>один Postgres</td><td>запрос на схеме Flyway</td><td>сервис и Kafka</td><td>на каждый нетривиальный метод репозитория</td></tr>
+    <tr><td>Интеграционный</td><td>Postgres и Kafka</td><td>строка и сообщение своего процесса</td><td>второй сервис</td><td>на каждый факт публикации и сохранения</td></tr>
+    <tr><td>Сквозной</td><td>пять контейнеров и готовые образы</td><td>договор двух процессов</td><td>точное тело события, если читают лог</td><td>успех, отказ, недоступность. Не каждый if</td></tr>
+  </table>
+
+  <h2 id="iv-doubles">Пять подмен</h2>
+  <p>Слово «мок» часто означает любую подмену. Точные имена разделяют ответ и проверку вызова.</p>
+  <table>
+    <tr><th>Подмена</th><th>Что делает</th><th>В этом проекте</th></tr>
+    <tr><td>Dummy</td><td>объект-заглушка, его поля не читают. Нужен, чтобы заполнить аргумент</td><td>адрес доставки в модульном тесте: город есть, потому что конструктор просит, правило теста про город не спрашивает</td></tr>
+    <tr><td>Stub</td><td>возвращает заготовленный ответ. Вызовы не считают</td><td><span class="mono">when(checkStock).thenReturn(...)</span> в <span class="mono">OrderServiceKafkaIT</span>. Интерес теста — строка и топик, не число вызовов склада</td></tr>
+    <tr><td>Fake</td><td>рабочая упрощённая реализация</td><td><span class="mono">MockRestServiceServer</span> принимает HTTP <span class="mono">RestTemplate</span>, процесса склада нет. H2 была бы фейком базы и сломала бы миграции</td></tr>
+    <tr><td>Mock</td><td>и ответ, и проверка взаимодействий</td><td><span class="mono">verify(orderEventProducer, times(2))</span> в <span class="mono">OrderServiceTest</span></td></tr>
+    <tr><td>Spy</td><td>настоящий объект, подменён один метод</td><td>в репозитории нет. На <span class="mono">OrderService</span> незаглушенный метод пойдёт в null-зависимости</td></tr>
+  </table>
+  <div class="flow">
+    <div class="node"><strong>Вопрос про ветку</strong><span>mock и verify</span></div>
+    <div class="arrow">↓</div>
+    <div class="node blue"><strong>Вопрос про свой SQL или свой брокер</strong><span>настоящий контейнер, сосед может остаться stub</span></div>
+    <div class="arrow">↓</div>
+    <div class="node term"><strong>Вопрос про чужой процесс</strong><span>второй контейнер. Мок туда не дотягивается</span></div>
+  </div>
+
+  <h2 id="iv-mid">Вопросы мидлу по видам тестов</h2>
+  <h3>Чем модульный тест отличается от интеграционного</h3>
+  <p>Модульный поднимает один класс. Соседей подставляет Mockito. Успех — исключение, возврат или <span class="mono">verify</span>. Интеграционный поднимает соседнюю программу: Postgres, Kafka, иногда HTTP. Успех — след в этой программе. <span class="mono">OrderServiceTest</span> таблицу не видит. <span class="mono">OrderServiceKafkaIT</span> видит строку CONFIRMED и одну запись в <span class="mono">order.confirmed</span>, склад там по-прежнему stub. Подробный ход методов — в <a href="#t-service">сервисе</a> и в <a href="#t-kafka">Kafka IT</a>.</p>
+  <h3>Зачем AssertJ, если есть assertEquals</h3>
+  <p><span class="mono">assertEquals</span> показывает expected и actual одной строкой. AssertJ читается слева направо и умеет <span class="mono">as("body: %s", body)</span>, чтобы при неверном HTTP-коде в отчёте было тело. Для <span class="mono">BigDecimal</span> берут <span class="mono">isEqualByComparingTo</span>: <span class="mono">equals</span> сравнивает ещё и масштаб, 19.98 и 19.9800 для него разные. Старые классы сервиса и валидатора ещё вызывают <span class="mono">assertEquals</span>.</p>
+  <h3>Что такое @DataJpaTest и почему он падает на пустой схеме</h3>
+  <p>Срез поднимает только JPA. По умолчанию он подменяет источник на встроенную базу и выключает Flyway. В проекте стоят <span class="mono">Replace.NONE</span> и <span class="mono">@ImportAutoConfiguration(FlywayAutoConfiguration.class)</span>. Иначе <span class="mono">validate</span> не находит таблиц. Каждый метод идёт в транзакции и откатывается. Перед чтением вызывают <span class="mono">flush</span> и <span class="mono">clear</span>. Разбор двух методов — в <a href="#t-repo">репозитории</a>.</p>
+  <h3>Чем @WebMvcTest отличается от вызова контроллера напрямую</h3>
+  <p>Прямой вызов <span class="mono">controller.createOrder</span> не прогоняет <span class="mono">@Valid</span>, JSON и <span class="mono">GlobalExceptionHandler</span>. MockMvc прогоняет. Сервис — <span class="mono">@MockBean</span>, в Boot 3.2.4 имя <span class="mono">@MockitoBean</span> не скомпилируется. Так проверяют 201, 202, 400 и 409 без Postgres. Класса в репозитории ещё нет, каркас — в <a href="#skeleton-mvc">срезе контроллера</a>.</p>
+  <h3>Как устроен тест повторов без Docker</h3>
+  <p><span class="mono">MockRestServiceServer</span> вешают на бин <span class="mono">warehouseRestTemplate</span>. Три ответа 500 обязаны стать <span class="mono">WarehouseUnavailableException</span> с причиной <span class="mono">HttpServerErrorException</span>. Один 404 выходит как <span class="mono">NotFound</span>: 4xx нет в списке повторов, а <span class="mono">unavailable</span> такую ошибку пробрасывает как есть. В профиле <span class="mono">minimum-number-of-calls</span> равен 100, в бою — 5, поэтому три ошибки проверяют повтор, а не открытый предохранитель. Шаги методов — в <a href="#t-retry">тесте клиента</a>.</p>
+
+  <h2 id="iv-tc">Testcontainers: рассказ на сеньора</h2>
+  <p>Короткое определение. Testcontainers из теста говорит с демоном Docker: скачивает образ, создаёт контейнер, ждёт готовности, отдаёт адрес и в конце удаляет контейнер. Схемы библиотеки, двух адресов и шести шагов уже нарисованы в <a href="#tc">лекции</a>. Ниже то, что произносят после рисунка.</p>
+  <table>
+    <tr><th>Вариант</th><th>Что обещает</th><th>Где врёт в этом проекте</th></tr>
+    <tr><td>H2</td><td>быстрая база в памяти</td><td><span class="mono">gen_random_uuid()</span>, <span class="mono">NUMERIC(19,4)</span>, <span class="mono">COMMENT ON</span> из V1–V4. <span class="mono">validate</span> сверит сущности с чужой схемой</td></tr>
+    <tr><td>Общий Postgres на localhost:5432</td><td>та же СУБД, что у разработчика</td><td>порт занят, в базе чужие строки, CI без этого процесса красный</td></tr>
+    <tr><td>docker-compose up перед тестами</td><td>весь стенд как в жизни</td><td>адрес фиксированный, данные в томе живут между прогонами. Так живёт только пустой контекст склада на 5433</td></tr>
+    <tr><td>Testcontainers</td><td>своя СУБД, пустая база, случайный порт, удаление после класса</td><td>нужен запущенный Docker. Старт Postgres — секунды, контейнер делят на класс</td></tr>
+  </table>
+  <h3>Три способа отдать адрес</h3>
+  <table>
+    <tr><th>Способ</th><th>Когда берут</th><th>В проекте</th></tr>
+    <tr><td><span class="mono">@ServiceConnection</span></td><td>Boot знает тип: Postgres заполняет url, логин и пароль. Kafka заполняет bootstrap</td><td>срез репозитория и <span class="mono">contextLoads</span> заказов</td></tr>
+    <tr><td><span class="mono">@DynamicPropertySource</span></td><td>несколько ключей сразу. В реестр кладут лямбду</td><td><span class="mono">OrderServiceKafkaIT</span>: четыре ключа</td></tr>
+    <tr><td><span class="mono">jdbc:tc:</span></td><td>контейнер спрятан в строке URL</td><td>не используется</td></tr>
+    <tr><td><span class="mono">JAVA_TOOL_OPTIONS</span></td><td>у теста нет Spring, свойства нужны JVM в контейнере</td><td><span class="mono">E2EStack</span></td></tr>
+  </table>
+  <p><span class="mono">KafkaProducerConfig</span> читает брокер через <span class="mono">@Value</span>. Константа <span class="mono">localhost:9092</span> увела бы запись мимо контейнера. Ryuk снимает контейнеры, если JVM умерла и не вызвала <span class="mono">stop()</span>. Случайные порты позволяют двум Postgres не драться за 5432. «Could not find a valid Docker environment» значит, что сокета нет. Образы своих сервисов библиотека не компилирует: тег <span class="mono">:e2e</span> должен уже лежать в Docker.</p>
+
+  <h2 id="iv-spring">Spring Test и кеш контекста</h2>
+  <p>Контекст собирается один раз на набор классов, профилей, свойств и <span class="mono">@MockBean</span> и живёт до конца JVM. Два класса с одним ключом делят бины и тот адрес базы, который попал в <span class="mono">DataSource</span> при первой сборке.</p>
+  <div class="flow">
+    <div class="node"><strong>Первый класс</strong><span>static Postgres, лямбда, контекст собрался на случайный порт</span></div>
+    <div class="arrow">↓ тот же ключ кеша</div>
+    <div class="node blue"><strong>Второй класс</strong><span>получает уже живой контекст. Новый контейнер адрес не перепишет</span></div>
+    <div class="arrow">↓</div>
+    <div class="node rose"><strong>@DirtiesContext</strong><span>кеш выбрасывают. Следующий тест платит полный старт ещё раз. В проекте так не делают</span></div>
+  </div>
+  <p>Чистоту данных дают откат <span class="mono">@DataJpaTest</span>, свой UUID или очистка. <span class="mono">@Transactional</span> на тесте с Kafka откатит строку и оставит сообщение в брокере. «Контроллер отдал 500 вместо 409» чинят срезом MVC. «В топике нет ключа заказа» чинят интеграционным тестом. «Склад не уменьшил reserved» чинят сквозным тестом или тестом самого склада.</p>
+
+  <h2 id="iv-kafka">Kafka в тесте</h2>
+  <table>
+    <tr><th>Настройка потребителя</th><th>Зачем</th><th>Если забыть</th></tr>
+    <tr><td>группа <span class="mono">test-</span> плюс новый UUID</td><td>у группы своё смещение</td><td>старая группа на втором прогоне читает «уже прочитано»</td></tr>
+    <tr><td><span class="mono">auto.offset.reset=earliest</span></td><td>новая группа начинает с начала топика</td><td>при <span class="mono">latest</span> запись, отправленную до <span class="mono">subscribe</span>, можно пропустить</td></tr>
+    <tr><td>один <span class="mono">poll</span> на 10 секунд</td><td>ждать запись</td><td>короткий poll на холодном брокере даёт пустой список. Первый poll после subscribe часто уходит на вход в группу</td></tr>
+    <tr><td>фильтр по id заказа</td><td>в топике могут лежать чужие записи</td><td><span class="mono">hasSize(1)</span> начинает зависеть от порядка прогона. Сейчас в классе один метод, фильтра по id в poll нет, ключ сверяют после</td></tr>
+  </table>
+  <div class="grid">
+    <div class="card">
+      <h3>Сильный след</h3>
+      <p>Свой потребитель, ключ равен id заказа, в JSON есть productId и quantity. Так сделан <span class="mono">OrderServiceKafkaIT</span>.</p>
+    </div>
+    <div class="card">
+      <h3>Слабый след</h3>
+      <p>Подстрока <span class="mono">[order.confirmed]</span> в логе. Не доказывает, что событие про этот товар. В сквозном тесте это принимают, потому что точный JSON уже проверен уровнем ниже.</p>
+    </div>
+  </div>
+  <p>Встроенный брокер <span class="mono">spring-kafka-test</span> в pom есть и в тестах не используется: он жил бы в той же JVM и не проверил бы настоящий протокол. Идемпотентный продюсер на одном узле требует фактор репликации offsets и transaction state log равный 1. Awaitility крутит проверку лога до 15 секунд. <span class="mono">Thread.sleep</span> всегда ждёт всю паузу.</p>
+
+  <h2 id="iv-flake">Нестабильные тесты и слабый след</h2>
+  <p>Нестабильный тест без правки кода то зелёный, то красный.</p>
+  <table>
+    <tr><th>Симптом</th><th>Механизм</th><th>Как чинят</th></tr>
+    <tr><td>Топик иногда пустой</td><td>poll короче входа в группу, либо offset latest</td><td>новая группа, earliest, poll с запасом, фильтр по id</td></tr>
+    <tr><td>Лог иногда без строки</td><td>асинхронный appender или слушатель ещё не прочитал</td><td>Awaitility</td></tr>
+    <tr><td>Второй метод видит чужой заказ</td><td>контейнер на класс, отката нет</td><td>свой UUID или очистка</td></tr>
+    <tr><td>Локально зелёный, в CI красный</td><td>reuse на машине, в CI контейнер пустой. Либо в CI нет сокета Docker</td><td>reuse в CI выключают</td></tr>
+    <tr><td>После правки Java сквозной красный</td><td>образ собран из старого jar</td><td>package и docker build</td></tr>
+    <tr><td>Срез репозитория зелёный, SQL в сервисе падает</td><td>чтение из сессии Hibernate</td><td><span class="mono">flush</span> и <span class="mono">clear</span></td></tr>
+    <tr><td>Мок прошёл, на складе падает</td><td>stub всегда возвращает available true</td><td>рядом нужен тест, где склад настоящий</td></tr>
+  </table>
+  <p>Слабый след стабильно зелёный и всё равно ничего не доказывает: <span class="mono">assertNotNull</span> на DTO из мока, один <span class="mono">isRunning()</span> как проверка заказа, пустой <span class="mono">contextLoads</span> вместо создания заказа. Сильный след читает то, что произвела другая программа: строку после <span class="mono">clear</span>, запись чужим потребителем, число в чужой таблице, код живого HTTP.</p>
+
+  <h2 id="iv-story">Двухминутный рассказ про этот проект</h2>
+  <div class="card">
+    <p>Правило «доставленный заказ нельзя отменить» проверяет чистый <span class="mono">OrderValidator</span>. Оркестрацию <span class="mono">createOrder</span> проверяет Mockito: два вызова продюсера на две позиции. Сумму этот тест не считает, 199.99 приходит из фикстуры.</p>
+    <p>Повторы склада — узкий Spring и <span class="mono">MockRestServiceServer</span>. Три ответа 500 становятся <span class="mono">WarehouseUnavailableException</span>. Один 404 наружу уходит сразу.</p>
+    <p>Репозиторий гоняется на Postgres 16. H2 не подходит из-за миграций. Срез сам подменил бы базу и выключил Flyway, поэтому стоят <span class="mono">Replace.NONE</span> и импорт Flyway. Методы откатываются. Перед чтением <span class="mono">flush</span> и <span class="mono">clear</span>.</p>
+    <p>Стык с брокером — статические Postgres и Kafka 7.4.4, адрес лямбдой, склад — мок. В базе 19.98 и одна запись, ключ равен id заказа.</p>
+    <p>Договор со складом — пять контейнеров, Apache Kafka 3.7.1. Сервисы ходят по псевдонимам, тест — по проброшенному порту. Три сценария: резерв 100 на 97, нулевой остаток, остановленный склад оставляет заказ CREATED. Образы тест не собирает, Surefire этот класс исключает.</p>
+  </div>
+  <p>Если просят, что улучшить: лог сквозного теста не привязан к товару, точное тело события проверяет только интеграционный тест. <span class="mono">updateStatus</span> в модульном тесте не проверяет <span class="mono">releaseStock</span> и <span class="mono">order.cancelled</span>. <span class="mono">cancelOrder</span> валидатор, склад и Kafka не трогает, теста на него нет. Среза контроллера нет.</p>
+
+  <h2 id="iv-bank">Банк вопросов</h2>
+  <table>
+    <tr><th>Вопрос</th><th>Уровень</th><th>Ответ</th></tr>
+    <tr><td>Чем тест отличается от отсутствия падения</td><td>мидл</td><td>Есть подготовка, действие и проверка следствия. Пустой метод проверяет только то, что не бросили исключение</td></tr>
+    <tr><td>Когда хватает Mockito</td><td>мидл</td><td><a href="#t-service">OrderServiceTest</a> считает два <span class="mono">sendOrderConfirmed</span>. Строки в Postgres нет</td></tr>
+    <tr><td>Почему забытый when опасен</td><td>мидл</td><td>Мок возвращает null. Сервис падает с NPE раньше сценария</td></tr>
+    <tr><td>any() и eq в одном when</td><td>мидл</td><td>Если один аргумент — матчер, остальные тоже матчеры. Голый объект оборачивают в <span class="mono">eq</span></td></tr>
+    <tr><td>Зачем ArgumentCaptor</td><td>мидл</td><td>Забрать объект, который сервис передал в мок, и проверить несколько полей</td></tr>
+    <tr><td>Что такое срез</td><td>мидл</td><td><span class="mono">@DataJpaTest</span> — база. <span class="mono">@WebMvcTest</span> — HTTP. Полный контекст нужен, когда след проходит через несколько слоёв</td></tr>
+    <tr><td>Почему H2 не взяли</td><td>мидл</td><td><a href="#tc-h2">Миграции</a> и <span class="mono">validate</span></td></tr>
+    <tr><td>Что делает Testcontainers</td><td>мидл</td><td>Поднимает программу в Docker, отдаёт адрес, удаляет контейнер</td></tr>
+    <tr><td>Откуда порт</td><td>мидл</td><td><a href="#tc-addr">Внутри постоянный</a>, снаружи случайный</td></tr>
+    <tr><td>Зачем static и лямбда</td><td>сеньор</td><td><a href="#tc-life">Контекст кеширует адрес</a>. Строка до <span class="mono">start()</span> пустая</td></tr>
+    <tr><td>Два адреса одной базы</td><td>сеньор</td><td>Хост — случайный порт. Сосед — псевдоним и 5432. localhost внутри контейнера — он сам</td></tr>
+    <tr><td>Postgres «готов» один раз</td><td>сеньор</td><td>Пишет ready, перезапускается и пишет снова. Модуль ждёт фразу дважды</td></tr>
+    <tr><td>Зачем Ryuk</td><td>сеньор</td><td>Уборка, если JVM умерла и не вызвала stop</td></tr>
+    <tr><td>Чем опасен reuse</td><td>сеньор</td><td>В контейнере остаются строки прошлого запуска. В CI выключают</td></tr>
+    <tr><td>Почему @Transactional нельзя вешать на тест с Kafka</td><td>сеньор</td><td><a href="#java">Откат заберёт строку</a>, сообщение уже ушло</td></tr>
+    <tr><td>Почему новая группа потребителя</td><td>сеньор</td><td><a href="#tc-net">Смещение хранится по имени группы</a>. Нужен earliest</td></tr>
+    <tr><td>Зачем фактор репликации 1</td><td>сеньор</td><td>Узел один. Иначе transaction-топик не соберётся и идемпотентный продюсер не стартует</td></tr>
+    <tr><td>Embedded Kafka или контейнер</td><td>сеньор</td><td>Встроенный брокер дешевле и в той же JVM. Здесь взяли контейнер. <span class="mono">spring-kafka-test</span> не используется</td></tr>
+    <tr><td>Лог или потребитель</td><td>сеньор</td><td>Лог не привязан к productId. Ключ и JSON проверяет интеграционный тест</td></tr>
+    <tr><td>Почему сквозной не в mvn test</td><td>сеньор</td><td>Дорогой и требует образов. Surefire исключает <span class="mono">*E2ETest</span>. В профиле e2e шаблон задан явно</td></tr>
+    <tr><td>400 и 500 при зелёных модульных тестах</td><td>сеньор</td><td><a href="#run">Jar внутри образа старый</a></td></tr>
+    <tr><td>Как изолировать данные на общем контейнере</td><td>сеньор</td><td>Откат среза, новый UUID или очистка. Новый контейнер на метод при живом контексте адрес не обновит</td></tr>
+    <tr><td>Что такое флак</td><td>сеньор</td><td>Падение без изменения кода. Ищут poll, группу, sleep, reuse, порядок методов</td></tr>
+    <tr><td>Сколько сквозных тестов писать</td><td>сеньор</td><td><a href="#gaps">Успех, бизнес-отказ, недоступность</a>. Каждую ветку if оставляют на Mockito</td></tr>
+  </table>
+  <div class="say">
+    <b>КАК ГОТОВИТЬСЯ</b>
+    Мидл рассказывает пирамиду на классах репозитория и банк до строки про static. Сеньор рисует два адреса и шесть шагов жизни контейнера, затем проходит таблицу дыр.
+  </div>
+</main>
+</body>
+</html>
