@@ -114,7 +114,7 @@ public class GlobalExceptionHandler {
             ResourceAccessException.class,
             IOException.class
     })
-    protected ErrorDto handleIntegrationException(ConnectTimeoutException exception) {
+    protected ErrorDto handleIntegrationException(Exception exception) {
         log.error("Ошибка интеграции с внешним сервисом: {}", exception.getMessage(), exception);
         return ErrorDto.builder()
                 .code("INTEGRATION_ERROR")

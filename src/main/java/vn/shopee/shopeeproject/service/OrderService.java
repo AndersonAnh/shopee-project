@@ -167,7 +167,7 @@ public class OrderService {
                     .occurredAt(occurredAt)
                     .build());
         }
-        log.info("Товара нет на складе: orderId={}, items={}", order.getId(), order.getOrderItems().size());
+        log.info("Заказ отправлен на проверку: orderId={}, items={}", order.getId(), order.getOrderItems().size());
     }
 
     private void publishOrderWaitingStock(Order order) {// отправляем месадж в кафка,в параметрах=заказ
