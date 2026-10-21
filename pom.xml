@@ -20,7 +20,6 @@
         <mapstruct.version>1.5.5.Final</mapstruct.version>
         <lombok-mapstruct-binding.version>0.2.0</lombok-mapstruct-binding.version>
         <resilience4j.version>2.2.0</resilience4j.version>
-        <context-propagation.version>1.1.1</context-propagation.version>
         <!-- SpringDoc для Spring Boot 3.2.x: 2.3.x–2.5.x стабильны, 2.6.0 тоже работает -->
         <springdoc.version>2.5.0</springdoc.version>
     </properties>
@@ -85,14 +84,7 @@
             <artifactId>flyway-core</artifactId>
         </dependency>
 
-        <!-- 8. Micrometer context propagation — для correlationId в MDC -->
-        <dependency>
-            <groupId>io.micrometer</groupId>
-            <artifactId>context-propagation</artifactId>
-            <version>${context-propagation.version}</version>
-        </dependency>
-
-        <!-- 9. Метрики: Micrometer + Prometheus -->
+        <!-- 8. Метрики: Micrometer + Prometheus -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
@@ -118,29 +110,12 @@
             <optional>true</optional>
         </dependency>
 
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-cache</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.github.ben-manes.caffeine</groupId>
-            <artifactId>caffeine</artifactId>
-        </dependency>
-
         <!-- ===================== ТЕСТЫ ===================== -->
 
         <!-- Unit-тесты: JUnit 5, Mockito -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
-            <scope>test</scope>
-        </dependency>
-
-        <!-- Тестирование Resilience4j конфигураций -->
-        <dependency>
-            <groupId>io.github.resilience4j</groupId>
-            <artifactId>resilience4j-reactor</artifactId>
-            <version>${resilience4j.version}</version>
             <scope>test</scope>
         </dependency>
 
@@ -168,6 +143,13 @@
         <dependency>
             <groupId>org.springframework.kafka</groupId>
             <artifactId>spring-kafka-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Awaitility — для проверки асинхронных событий (Kafka) в E2E -->
+        <dependency>
+            <groupId>org.awaitility</groupId>
+            <artifactId>awaitility</artifactId>
             <scope>test</scope>
         </dependency>
 
@@ -208,6 +190,17 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
 
+            <!-- Unit-тесты: исключаем E2E, чтобы они не запускались на mvn test -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <exclude>**/*E2ETest.java</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -243,5 +236,37 @@
             </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <!--
+            E2E-профиль: запускает *E2ETest через failsafe (mvn verify -Pe2e).
+            КРИТИЧНО: без <includes> failsafe по умолчанию ищет только *IT.java,
+            и наш FullInteractionE2ETest просто не выполнится.
+        -->
+        <profile>
+            <id>e2e</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-failsafe-plugin</artifactId>
+                        <configuration>
+                            <includes>
+                                <include>**/*E2ETest.java</include>
+                            </includes>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>integration-test</goal>
+                                    <goal>verify</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 
 </project>
